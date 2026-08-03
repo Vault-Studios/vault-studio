@@ -79,6 +79,7 @@ button, input, select, textarea { font: inherit; }
 }
 @keyframes pulse { 50% { box-shadow: 0 0 0 9px rgba(130,207,101,0); } }
 .menu-toggle, .mobile-menu { display: none; }
+.nav .mobile-menu { display: none; }
 .menu-toggle {
   width: 42px; height: 42px; padding: 0; border: 1px solid rgba(23,20,15,.2);
   border-radius: 50%; color: #17140f; background: rgba(255,255,255,.32);
