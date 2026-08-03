@@ -30,9 +30,10 @@ export function localProjects(locale: Locale): Project[] {
     gallery: images.map(([file, alt, caption]) => ({ src: `/work/exim-bank/${file}`, alt, caption })),
     video: {
       streamUid: process.env.CLOUDFLARE_STREAM_EXIM_UID,
-      mp4: "/work/exim-bank/exim-bank-highlight.mp4",
+      mp4: "https://b13219.github.io/vault/assets/work/exim-bank/exim-bank-highlight.mp4",
       poster: "/work/exim-bank/exim-townhall-stage.webp",
       duration: "01:56",
     },
   }];
 }
+
