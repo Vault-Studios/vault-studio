@@ -234,6 +234,28 @@ mobileMenu.querySelectorAll("a").forEach((link) => {
   });
 });
 
+const stickyNav = document.querySelector(".nav");
+const darkNavSections = ".review-stories, .services, .booking, .closing, .footer";
+let navThemeFrame = 0;
+
+function updateNavTheme() {
+  navThemeFrame = 0;
+  const sampleY = Math.min(stickyNav.offsetHeight / 2, innerHeight / 2);
+  const activeSection = [...document.querySelectorAll("section, footer")].find((section) => {
+    const rect = section.getBoundingClientRect();
+    return rect.top <= sampleY && rect.bottom > sampleY;
+  });
+  stickyNav.classList.toggle("is-dark", Boolean(activeSection?.matches(darkNavSections)));
+}
+
+function requestNavThemeUpdate() {
+  if (!navThemeFrame) navThemeFrame = requestAnimationFrame(updateNavTheme);
+}
+
+updateNavTheme();
+addEventListener("scroll", requestNavThemeUpdate, { passive: true });
+addEventListener("resize", requestNavThemeUpdate);
+
 addEventListener("keydown", (event) => {
   if (event.key !== "Escape") return;
   menuToggle.setAttribute("aria-expanded", "false");
@@ -417,3 +439,4 @@ reviewForm.addEventListener("submit", async (event) => {
     button.disabled = false;
   }
 });
+

@@ -20,41 +20,42 @@
     <meta name="twitter:image" content="https://vault-studios.github.io/vault-studio/assets/brand/vault-og.jpg" />
     <link rel="icon" href="./assets/brand/vault-mark.png" />
     <link rel="preconnect" href="https://images.unsplash.com" />
-    <link rel="stylesheet" href="./styles.css?v=20260803-org-pages" />
-    <script src="./script.js?v=20260803-org-pages" defer></script>
+    <link rel="stylesheet" href="./styles.css?v=20260803-sticky-nav" />
+    <script src="./script.js?v=20260803-sticky-nav" defer></script>
   </head>
   <body>
     <main>
+      <header class="nav shell">
+        <a class="brand" href="#top" aria-label="Vault home">
+          <img class="brand-logo brand-logo-dark" src="./assets/brand/vault-logo-dark.png" alt="Vault" />
+          <img class="brand-logo brand-logo-light" src="./assets/brand/vault-logo-light.png" alt="" aria-hidden="true" />
+        </a>
+        <nav aria-label="Main navigation">
+          <a href="#work">Work</a>
+          <a href="#reviews">Reviews</a>
+          <a href="#services">Services</a>
+          <a href="#process">Studio</a>
+          <a href="#book">Book a project</a>
+        </nav>
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu">
+          <span></span><span></span><span class="sr-only">Toggle navigation</span>
+        </button>
+        <a class="availability" href="#book">
+          <i></i>
+          Available for select projects
+        </a>
+        <nav class="mobile-menu" id="mobile-menu" aria-label="Mobile navigation">
+          <a href="#work">Work</a>
+          <a href="#reviews">Reviews</a>
+          <a href="#services">Services</a>
+          <a href="#process">Studio</a>
+          <a href="#book">Book a project</a>
+        </nav>
+      </header>
+
       <section class="motion-story" id="top">
         <div class="motion-sticky">
           <div class="motion-wash" aria-hidden="true"></div>
-
-          <header class="nav shell">
-            <a class="brand" href="#top" aria-label="Vault home">
-              <img class="brand-logo" src="./assets/brand/vault-logo-dark.png" alt="Vault" />
-            </a>
-            <nav aria-label="Main navigation">
-              <a href="#work">Work</a>
-              <a href="#reviews">Reviews</a>
-              <a href="#services">Services</a>
-              <a href="#process">Studio</a>
-              <a href="#book">Book a project</a>
-            </nav>
-            <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu">
-              <span></span><span></span><span class="sr-only">Toggle navigation</span>
-            </button>
-            <a class="availability" href="#book">
-              <i></i>
-              Available for select projects
-            </a>
-            <nav class="mobile-menu" id="mobile-menu" aria-label="Mobile navigation">
-              <a href="#work">Work</a>
-              <a href="#reviews">Reviews</a>
-              <a href="#services">Services</a>
-              <a href="#process">Studio</a>
-              <a href="#book">Book a project</a>
-            </nav>
-          </header>
 
           <div class="motion-intro shell">
             <p class="eyebrow dark">Photography & film · Dar es Salaam</p>
@@ -406,3 +407,4 @@
     </main>
   </body>
 </html>
+
