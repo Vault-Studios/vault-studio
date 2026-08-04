@@ -1,7 +1,7 @@
 -- Run once in Supabase SQL Editor. Existing rows are preserved.
 create table if not exists public.availability_status (
   id text primary key default 'studio',
-  status text not null default 'available' check (status in ('available', 'limited', 'engaged')),
+  status text not null default 'available' check (status in ('available', 'limited', 'engaged', 'unavailable')),
   message_en text not null default 'Now booking new commissions.',
   message_sw text not null default 'Tunapokea kazi mpya.',
   next_available_date date,
@@ -16,6 +16,12 @@ grant select on public.availability_status to anon, authenticated;
 drop policy if exists "Public can view studio availability" on public.availability_status;
 create policy "Public can view studio availability" on public.availability_status
 for select to anon, authenticated using (true);
+
+-- If this table existed before the unavailable state was added, refresh its
+-- status constraint. The Supabase dashboard remains the private update control.
+alter table public.availability_status drop constraint if exists availability_status_status_check;
+alter table public.availability_status add constraint availability_status_status_check
+check (status in ('available', 'limited', 'engaged', 'unavailable'));
 
 -- Reviews stay private until approved. The public view excludes client email.
 create table if not exists public.review_submissions (
@@ -44,3 +50,4 @@ select id, name, company, project, rating, review, approved_at
 from public.review_submissions where status = 'approved';
 
 grant select on public.reviews_public to anon, authenticated;
+
