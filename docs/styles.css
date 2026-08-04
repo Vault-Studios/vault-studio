@@ -77,6 +77,9 @@ button, input, select, textarea { font: inherit; }
   box-shadow: 0 0 0 5px rgba(130,207,101,.15);
   animation: pulse 1.8s ease-in-out infinite;
 }
+.status-limited i { background: #f2b84b; box-shadow: 0 0 0 5px rgba(242,184,75,.18); }
+.status-engaged i { background: #ff8c58; box-shadow: 0 0 0 5px rgba(255,140,88,.18); }
+.status-unavailable i { background: #a7a29a; box-shadow: 0 0 0 5px rgba(167,162,154,.18); animation: none; }
 @keyframes pulse { 50% { box-shadow: 0 0 0 9px rgba(130,207,101,0); } }
 .menu-toggle, .mobile-menu { display: none; }
 .nav .mobile-menu { display: none; }
@@ -457,7 +460,7 @@ button, input, select, textarea { font: inherit; }
   .nav { right: 15px; left: 15px; }
   .nav { min-height: 84px; }
   .availability { padding: 9px 11px; font-size: 0; }
-  .availability::after { content: "Available"; font-size: .58rem; }
+  .availability::after { content: attr(data-status-short); font-size: .58rem; }
   .motion-story { height: 540vh; }
   .motion-intro { top: 47%; }
   .motion-intro h1 { font-size: clamp(4.2rem, 18vw, 6.4rem); }
