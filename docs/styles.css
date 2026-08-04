@@ -423,6 +423,10 @@ button, input, select, textarea { font: inherit; }
 }
 .booking-form input:focus, .booking-form select:focus, .booking-form textarea:focus { border-color: var(--gold); }
 .booking-form select { color-scheme: dark; }
+.booking-form select option {
+  color: #17140f;
+  background: #fff;
+}
 .booking-form textarea { resize: vertical; line-height: 1.55; }
 .form-action { display: flex; align-items: center; justify-content: space-between; gap: 25px; padding-top: 10px; }
 .form-action p { max-width: 340px; margin: 0; color: rgba(255,255,255,.42); font-family: Georgia, serif; font-size: .92rem; line-height: 1.5; }
