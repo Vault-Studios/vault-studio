@@ -1297,6 +1297,11 @@ textarea {
   background: var(--gold);
 }
 
+.availabilityBand.status-unavailable .statusOrb i {
+  background: #a7a29a;
+  animation: none;
+}
+
 .lightButton,
 .goldButton {
   display: inline-flex;
@@ -2932,3 +2937,4 @@ textarea {
     justify-content: center;
   }
 }
+
