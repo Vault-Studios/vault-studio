@@ -20,8 +20,8 @@
     <meta name="twitter:image" content="https://vault-studios.github.io/vault-studio/assets/brand/vault-og.jpg" />
     <link rel="icon" href="./assets/brand/vault-mark.png" />
     <link rel="preconnect" href="https://images.unsplash.com" />
-    <link rel="stylesheet" href="./styles.css?v=20260803-nav-menu-fix" />
-    <script src="./script.js?v=20260803-nav-menu-fix" defer></script>
+    <link rel="stylesheet" href="./styles.css?v=20260804-live-status" />
+    <script src="./script.js?v=20260804-live-status" defer></script>
   </head>
   <body>
     <main>
@@ -40,9 +40,9 @@
         <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu">
           <span></span><span></span><span class="sr-only">Toggle navigation</span>
         </button>
-        <a class="availability" href="#book">
+        <a class="availability status-available" href="#book" data-availability-nav data-status-short="Available">
           <i></i>
-          Available for select projects
+          <span data-availability-nav-text>Available for select projects</span>
         </a>
         <nav class="mobile-menu" id="mobile-menu" aria-label="Mobile navigation">
           <a href="#work">Work</a>
@@ -301,13 +301,13 @@
         </div>
       </section>
 
-      <section class="availability-band">
+      <section class="availability-band status-available" data-availability-band aria-live="polite">
         <div class="shell">
           <div class="status-orb"><i></i></div>
           <div>
             <p class="eyebrow">Current status</p>
-            <h2>Now booking new commissions.</h2>
-            <p>
+            <h2 data-availability-title>Now booking new commissions.</h2>
+            <p data-availability-copy>
               Share your dates, scope and location. We will confirm availability
               and the best production approach within one working day.
             </p>
@@ -321,11 +321,11 @@
           <div class="booking-intro">
             <p class="eyebrow">Project enquiries</p>
             <h2>Tell us what you want people to <em>feel.</em></h2>
-            <div class="booking-status">
+            <div class="booking-status status-available" data-booking-status aria-live="polite">
               <i></i>
               <div>
-                <strong>Project calendar open</strong>
-                <span>Dates are confirmed after a quick brief review.</span>
+                <strong data-booking-status-title>Project calendar open</strong>
+                <span data-booking-status-copy>Dates are confirmed after a quick brief review.</span>
               </div>
             </div>
           </div>
