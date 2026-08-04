@@ -262,44 +262,192 @@ addEventListener("keydown", (event) => {
   mobileMenu.classList.remove("is-open");
 });
 
+const languageToggle = document.querySelector(".language-toggle");
+const originalTranslations = new WeakMap();
+let currentLocale = (() => {
+  try { return localStorage.getItem("vault-locale") === "sw" ? "sw" : "en"; }
+  catch { return "en"; }
+})();
+let currentAvailability = { status: "available" };
+const galleryCaptions = {
+  en: ["Ideas on stage", "Voices from the team", "Inside the audience", "A shared moment", "Recognition", "Progress in focus", "The wider picture", "Celebration"],
+  sw: ["Mawazo jukwaani", "Sauti za timu", "Ndani ya hadhira", "Wakati wa pamoja", "Kutambua mafanikio", "Maendeleo yakionekana", "Picha pana", "Sherehe"],
+};
+
+const translationTargets = [
+  { s: ".nav > nav:not(.mobile-menu) a:nth-child(1), .mobile-menu a:nth-child(1)", sw: "Kazi" },
+  { s: ".nav > nav:not(.mobile-menu) a:nth-child(2), .mobile-menu a:nth-child(2)", sw: "Maoni" },
+  { s: ".nav > nav:not(.mobile-menu) a:nth-child(3), .mobile-menu a:nth-child(3)", sw: "Huduma" },
+  { s: ".nav > nav:not(.mobile-menu) a:nth-child(4), .mobile-menu a:nth-child(4)", sw: "Studio" },
+  { s: ".nav > nav:not(.mobile-menu) a:nth-child(5), .mobile-menu a:nth-child(5)", sw: "Weka nafasi" },
+  { s: ".motion-intro .eyebrow", sw: "Picha na filamu · Dar es Salaam" },
+  { s: ".motion-intro h1", sw: "Hadithi zinapaswa<br><em>kukugusa.</em>", mode: "html" },
+  { s: ".motion-intro-note", sw: "Sogeza taratibu. Tutakuongoza. ", mode: "lead" },
+  { s: ".motion-scene-1 p", sw: "Sikiliza kwanza", mode: "tail" },
+  { s: ".motion-scene-1 h2", sw: "Hadithi huanza kabla kamera haijafika." },
+  { s: ".motion-scene-1 > div", sw: "Tunatafuta watu, msisimko na ukweli ndani ya wazo—kisha tunajenga mwelekeo wa picha kuzunguka kilicho muhimu." },
+  { s: ".motion-scene-2 p", sw: "Ingia ndani", mode: "tail" },
+  { s: ".motion-scene-2 h2", sw: "Karibu kiasi cha kuisikia." },
+  { s: ".motion-scene-2 > div", sw: "Timu ndogo, mwanga ulioundwa na mtazamo wa kihalisi huacha nafasi kwa matukio ya kweli kutokea." },
+  { s: ".motion-scene-3 p", sw: "Pata fremu", mode: "tail" },
+  { s: ".motion-scene-3 h2", sw: "Picha moja inaweza kubeba hadithi nzima." },
+  { s: ".motion-scene-3 > div", sw: "Ishara, kivuli, sauti na ukimya hugeuka kuwa kazi inayoeleweka kabla haijaelezwa." },
+  { s: ".motion-final .eyebrow", sw: "Matokeo" },
+  { s: ".motion-final h2", sw: "Kazi inayobaki akilini." },
+  { s: ".motion-final a", sw: "Ingia kwenye maktaba ", mode: "lead" },
+  { s: ".section-head .eyebrow", sw: "Kazi tulizochagua" },
+  { s: ".section-head h2", sw: "Ndani ya hadithi." },
+  { s: ".section-head > p", sw: "Filamu · Picha · Utamaduni wa kampuni · Matukio" },
+  { s: ".project-card-meta small", sw: "Tukio la kampuni · Filamu na picha · 2026" },
+  { s: ".project-card-meta em", sw: "Tazama mradi mzima" },
+  { s: ".case-study-bar > span", sw: "Vault / Kazi tulizochagua / 01" },
+  { s: ".case-study-bar button", sw: "Funga ", mode: "lead" },
+  { s: ".case-study-intro > div:first-child > span", sw: "01 / Tukio la kampuni" },
+  { s: ".case-study-copy > p", sw: "Hadithi ya filamu na picha inayofuata watu, mawazo na nyakati walizoshiriki katika mkutano wa katikati ya mwaka wa Exim Bank." },
+  { s: ".case-study-copy dl div:nth-child(1) dt", sw: "Eneo" },
+  { s: ".case-study-copy dl div:nth-child(2) dt", sw: "Mwaka" },
+  { s: ".case-study-copy dl div:nth-child(3) dt", sw: "Huduma" },
+  { s: ".case-study-copy dl div:nth-child(3) dd", sw: "Picha za tukio · Filamu ya muhtasari" },
+  { s: ".featured-film-label", sw: "Filamu ya muhtasari · 01:56" },
+  { s: ".case-study-cta > div > span", sw: "Una hadithi yako?" },
+  { s: ".case-study-cta h4", sw: "Tutengeneze inayofuata." },
+  { s: ".case-study-cta a", sw: "Anzisha mradi ", mode: "lead" },
+  { s: ".archive-label .eyebrow", sw: "Maktaba inakua" },
+  { s: ".archive-label > span", sw: "Hadithi nyingine tulizopewa zitaongezwa kadri muda unavyokwenda" },
+  { s: ".review-lead .eyebrow", sw: "Ushahidi nyuma ya fremu" },
+  { s: ".review-lead h2", sw: "Kazi ni muhimu. Na namna tulivyoifanya pia." },
+  { s: ".review-lead > p:last-child", sw: "Maneno haya yanatoka moja kwa moja kwa wateja. Kila maoni yanathibitishwa na kuchapishwa kwa sauti ya mteja mwenyewe." },
+  { s: ".review-empty span", sw: "Maktaba ya wateja inafunguliwa hivi karibuni" },
+  { s: ".review-empty p", sw: "Tunawaalika washirika wa zamani kuacha maoni ya kwanza yaliyothibitishwa." },
+  { s: ".review-invite-head .eyebrow", sw: "Uliwahi kufanya kazi na Vault?" },
+  { s: ".review-invite-head h3", sw: "Eleza hadithi kwa maneno yako mwenyewe." },
+  { s: ".review-invite-head > p:last-child", sw: "Maoni yako yatakaguliwa kwa ufupi ili kuthibitisha uhalisia kabla ya kuonekana hapa. Hatubadilishi maneno yako." },
+  { s: ".review-form label:nth-of-type(1)", sw: "Jina lako *", mode: "lead" },
+  { s: ".review-form label:nth-of-type(2)", sw: "Kampuni / shirika", mode: "lead" },
+  { s: ".review-form label:nth-of-type(3)", sw: "Barua pepe ya uthibitisho *", mode: "lead" },
+  { s: ".review-form label:nth-of-type(4)", sw: "Mradi tuliofanya pamoja *", mode: "lead" },
+  { s: ".review-form label:nth-of-type(5)", sw: "Ukadiriaji wako *", mode: "lead" },
+  { s: ".review-form select option:nth-child(1)", sw: "5 — Bora sana" },
+  { s: ".review-form select option:nth-child(2)", sw: "4 — Nzuri sana" },
+  { s: ".review-form select option:nth-child(3)", sw: "3 — Nzuri" },
+  { s: ".review-form select option:nth-child(4)", sw: "2 — Wastani" },
+  { s: ".review-form select option:nth-child(5)", sw: "1 — Inahitaji kuboreshwa" },
+  { s: ".review-form label:nth-of-type(6)", sw: "Maoni yako *", mode: "lead" },
+  { s: ".review-form textarea", sw: "Ni nini kilikuvutia kuhusu mchakato na kazi iliyokamilika?", mode: "placeholder" },
+  { s: ".review-consent span", sw: "Ninathibitisha kuwa haya ni maoni ya kweli kuhusu uzoefu wangu na ninaruhusu Vault kuchapisha jina, shirika na maoni yangu." },
+  { s: "#review-message", sw: "Barua pepe yako hutumika kwa uthibitisho tu na haitaonyeshwa." },
+  { s: ".review-action button", sw: "Tuma maoni ", mode: "lead" },
+  { s: ".services-lead .eyebrow", sw: "Tunachotengeneza" },
+  { s: ".services-lead h2", sw: "Mshirika mmoja wa picha. Kila fremu imezingatiwa." },
+  { s: ".services-lead > p:last-child", sw: "Timu ndogo yenye uzoefu, uzalishaji unaobadilika na mtandao wa kuaminika Tanzania na nje." },
+  { s: ".service-list article:nth-child(1) h3", sw: "Kampeni" },
+  { s: ".service-list article:nth-child(1) p", sw: "Picha kutoka wazo hadi kukamilika kwa chapa, uzinduzi na watu." },
+  { s: ".service-list article:nth-child(2) h3", sw: "Nyaraka" },
+  { s: ".service-list article:nth-child(2) p", sw: "Hadithi za watu zinazosimuliwa kwa utulivu, ukaribu na mtazamo ulio wazi." },
+  { s: ".service-list article:nth-child(3) h3", sw: "Matukio" },
+  { s: ".service-list article:nth-child(3) p", sw: "Uandishi wa haraka wenye hisia kwa vyombo vya habari, mitandao na kumbukumbu za muda mrefu." },
+  { s: ".service-list article:nth-child(4) h3", sw: "Filamu" },
+  { s: ".service-list article:nth-child(4) p", sw: "Filamu fupi, mahojiano na hadithi za chapa zenye mvuto wa sinema." },
+  { s: ".availability-band .eyebrow", sw: "Hali ya sasa" },
+  { s: ".availability-band .light-button", sw: "Angalia tarehe ", mode: "lead" },
+  { s: ".booking-intro > .eyebrow", sw: "Maombi ya miradi" },
+  { s: ".booking-intro > h2", sw: "Tuambie unachotaka watu <em>wahisi.</em>", mode: "html" },
+  { s: ".form-heading h3", sw: "Anza na mambo muhimu." },
+  { s: ".form-heading span", sw: "Kwa kawaida hujibu ndani ya siku 1" },
+  { s: ".booking-form label:nth-of-type(1)", sw: "Jina lako *", mode: "lead" },
+  { s: ".booking-form label:nth-of-type(2)", sw: "Kampuni / shirika", mode: "lead" },
+  { s: ".booking-form label:nth-of-type(3)", sw: "Barua pepe *", mode: "lead" },
+  { s: ".booking-form label:nth-of-type(4)", sw: "Simu / WhatsApp", mode: "lead" },
+  { s: ".booking-form label:nth-of-type(5)", sw: "Unahitaji nini? *", mode: "lead" },
+  { s: ".booking-form select option:nth-child(1)", sw: "Chagua huduma" },
+  { s: ".booking-form select option:nth-child(2)", sw: "Kampeni ya chapa" },
+  { s: ".booking-form select option:nth-child(3)", sw: "Nyaraka / uhariri" },
+  { s: ".booking-form select option:nth-child(4)", sw: "Picha za tukio" },
+  { s: ".booking-form select option:nth-child(5)", sw: "Picha binafsi" },
+  { s: ".booking-form select option:nth-child(6)", sw: "Filamu / video" },
+  { s: ".booking-form select option:nth-child(7)", sw: "Huduma nyingine" },
+  { s: ".booking-form label:nth-of-type(6)", sw: "Tarehe unayopendelea kuanza", mode: "lead" },
+  { s: ".booking-form label:nth-of-type(7)", sw: "Eneo la mradi", mode: "lead" },
+  { s: ".booking-form label:nth-of-type(8)", sw: "Maelezo ya mradi *", mode: "lead" },
+  { s: ".booking-form input[name='location']", sw: "Jiji / nchi", mode: "placeholder" },
+  { s: ".booking-form textarea", sw: "Tunatengeneza nini, ni kwa ajili ya nani, na itaonekana wapi?", mode: "placeholder" },
+  { s: "#form-message", sw: "Ombi lako litahifadhiwa kwa usalama na kutumwa studio." },
+  { s: ".form-action button", sw: "Tuma maelezo ", mode: "lead" },
+  { s: ".closing .eyebrow", sw: "Una hadithi akilini?" },
+  { s: ".closing h2", sw: "Tutengeneze kazi ambayo watu wataikumbuka." },
+  { s: ".closing a", sw: "Anzisha mradi ", mode: "lead" },
+  { s: ".footer > div:nth-of-type(2) p", sw: "Mitandao ya kijamii inakuja hivi karibuni" },
+];
+
+function translationNode(element, mode) {
+  if (mode === "tail") return [...element.childNodes].reverse().find((node) => node.nodeType === Node.TEXT_NODE);
+  if (mode === "lead") return [...element.childNodes].find((node) => node.nodeType === Node.TEXT_NODE);
+  return element;
+}
+
+function applyLocale(locale) {
+  currentLocale = locale === "sw" ? "sw" : "en";
+  document.documentElement.lang = currentLocale;
+  document.title = currentLocale === "sw"
+    ? "Vault — Studio ya Picha na Filamu"
+    : "Vault — Photography & Film Studio";
+
+  translationTargets.forEach(({ s, sw, mode = "text" }) => {
+    document.querySelectorAll(s).forEach((element) => {
+      const node = translationNode(element, mode);
+      if (!node) return;
+      if (!originalTranslations.has(node)) {
+        originalTranslations.set(node, mode === "html" ? element.innerHTML
+          : mode === "placeholder" ? element.getAttribute("placeholder") || ""
+            : node.textContent);
+      }
+      const value = currentLocale === "sw" ? sw : originalTranslations.get(node);
+      if (mode === "html") element.innerHTML = value;
+      else if (mode === "placeholder") element.setAttribute("placeholder", value);
+      else node.textContent = value;
+    });
+  });
+
+  document.querySelectorAll(".language-toggle [data-language]").forEach((option) => {
+    option.classList.toggle("is-active", option.dataset.language === currentLocale);
+  });
+  document.querySelectorAll(".project-gallery figure").forEach((slide, index) => {
+    slide.dataset.caption = galleryCaptions[currentLocale][index] || slide.dataset.caption;
+  });
+  const activeSlide = document.querySelector(".project-gallery figure.is-active");
+  const activeCaption = document.querySelector(".gallery-caption p");
+  if (activeSlide && activeCaption) activeCaption.textContent = activeSlide.dataset.caption;
+  languageToggle.setAttribute("aria-label", currentLocale === "en" ? "Badili kwenda Kiswahili" : "Switch to English");
+  try { localStorage.setItem("vault-locale", currentLocale); } catch {}
+  renderAvailability(currentAvailability);
+}
+
+const localeText = (english, swahili) => currentLocale === "sw" ? swahili : english;
+
+languageToggle.addEventListener("click", () => applyLocale(currentLocale === "en" ? "sw" : "en"));
+
 const supabaseUrl = "https://hxqsnztxokfemmysyjyw.supabase.co";
 const supabaseKey = "sb_publishable_eu-_vai9eG2R89we1eIlxw_Quzds9c9";
 const bookingSubmitApi = `${supabaseUrl}/rest/v1/booking_submissions`;
 const availabilityReadApi =
-  `${supabaseUrl}/rest/v1/availability_status?id=eq.studio&select=status,message_en,next_available_date&limit=1`;
+  `${supabaseUrl}/rest/v1/availability_status?id=eq.studio&select=status,message_en,message_sw,next_available_date&limit=1`;
 
 const availabilityPresets = {
   available: {
-    short: "Available",
-    nav: "Available for select projects",
-    title: "Now booking new commissions.",
-    copy: "Share your dates, scope and location. We will confirm availability and the best production approach within one working day.",
-    bookingTitle: "Project calendar open",
-    bookingCopy: "Dates are confirmed after a quick brief review.",
+    en: { short: "Available", nav: "Available for select projects", title: "Now booking new commissions.", copy: "Share your dates, scope and location. We will confirm availability and the best production approach within one working day.", bookingTitle: "Project calendar open", bookingCopy: "Dates are confirmed after a quick brief review." },
+    sw: { short: "Tunapatikana", nav: "Tunapokea miradi maalum", title: "Tunapokea kazi mpya.", copy: "Tueleze tarehe, ukubwa wa kazi na eneo. Tutathibitisha upatikanaji na njia bora ya uzalishaji ndani ya siku moja ya kazi.", bookingTitle: "Kalenda ya miradi iko wazi", bookingCopy: "Tarehe huthibitishwa baada ya kupitia maelezo kwa ufupi." },
   },
   limited: {
-    short: "Select dates",
-    nav: "Limited dates available",
-    title: "Limited availability for new commissions.",
-    copy: "A small number of production dates remain open. Send the brief and we will confirm the best fit.",
-    bookingTitle: "Limited dates available",
-    bookingCopy: "Early enquiries are recommended for upcoming work.",
+    en: { short: "Select dates", nav: "Limited dates available", title: "Limited availability for new commissions.", copy: "A small number of production dates remain open. Send the brief and we will confirm the best fit.", bookingTitle: "Limited dates available", bookingCopy: "Early enquiries are recommended for upcoming work." },
+    sw: { short: "Tarehe chache", nav: "Tarehe chache zinapatikana", title: "Nafasi chache kwa kazi mpya.", copy: "Tarehe chache za uzalishaji bado ziko wazi. Tuma maelezo nasi tutathibitisha kama zinafaa.", bookingTitle: "Tarehe chache zinapatikana", bookingCopy: "Tunashauri uwasiliane mapema kwa kazi zijazo." },
   },
   engaged: {
-    short: "In production",
-    nav: "Currently engaged",
-    title: "Currently engaged on a project.",
-    copy: "The studio is in production, but enquiries for future dates are welcome.",
-    bookingTitle: "Currently in production",
-    bookingCopy: "Future project enquiries are still welcome.",
+    en: { short: "In production", nav: "Currently engaged", title: "Currently engaged on a project.", copy: "The studio is in production, but enquiries for future dates are welcome.", bookingTitle: "Currently in production", bookingCopy: "Future project enquiries are still welcome." },
+    sw: { short: "Tuko kazini", nav: "Kwa sasa tuko kwenye mradi", title: "Kwa sasa tunatekeleza mradi.", copy: "Studio iko kwenye uzalishaji, lakini maombi ya tarehe zijazo yanakaribishwa.", bookingTitle: "Kwa sasa tuko kwenye uzalishaji", bookingCopy: "Maombi ya miradi ya baadaye bado yanakaribishwa." },
   },
   unavailable: {
-    short: "Bookings paused",
-    nav: "Bookings temporarily paused",
-    title: "Bookings are temporarily paused.",
-    copy: "We are not accepting new commissions at the moment. Please check back for the next opening.",
-    bookingTitle: "Project calendar paused",
-    bookingCopy: "New dates will be announced here when bookings reopen.",
+    en: { short: "Bookings paused", nav: "Bookings temporarily paused", title: "Bookings are temporarily paused.", copy: "We are not accepting new commissions at the moment. Please check back for the next opening.", bookingTitle: "Project calendar paused", bookingCopy: "New dates will be announced here when bookings reopen." },
+    sw: { short: "Nafasi zimesitishwa", nav: "Nafasi zimesitishwa kwa muda", title: "Upokeaji wa kazi umesitishwa kwa muda.", copy: "Kwa sasa hatupokei kazi mpya. Tafadhali rudi kuangalia nafasi inayofuata.", bookingTitle: "Kalenda ya miradi imesitishwa", bookingCopy: "Tarehe mpya zitatangazwa hapa nafasi zitakapofunguliwa tena." },
   },
 };
 
@@ -307,7 +455,7 @@ function formatAvailabilityDate(value) {
   if (!value) return "";
   const date = new Date(`${value}T12:00:00`);
   if (Number.isNaN(date.getTime())) return "";
-  return new Intl.DateTimeFormat("en-TZ", {
+  return new Intl.DateTimeFormat(currentLocale === "sw" ? "sw-TZ" : "en-TZ", {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -316,9 +464,10 @@ function formatAvailabilityDate(value) {
 
 function renderAvailability(record = {}) {
   const status = availabilityPresets[record.status] ? record.status : "available";
-  const preset = availabilityPresets[status];
+  const preset = availabilityPresets[status][currentLocale];
   const nextDate = formatAvailabilityDate(record.next_available_date);
-  const publicMessage = record.message_en?.trim();
+  const publicMessage = (currentLocale === "sw" ? record.message_sw : record.message_en)?.trim();
+  const nextOpening = currentLocale === "sw" ? "Nafasi inayofuata" : "Next opening";
   const statusClasses = Object.keys(availabilityPresets).map((key) => `status-${key}`);
   const nav = document.querySelector("[data-availability-nav]");
   const band = document.querySelector("[data-availability-band]");
@@ -336,21 +485,27 @@ function renderAvailability(record = {}) {
   if (band) {
     band.querySelector("[data-availability-title]").textContent = publicMessage || preset.title;
     band.querySelector("[data-availability-copy]").textContent = nextDate && status !== "available"
-      ? `${preset.copy} Next opening: ${nextDate}.`
+      ? `${preset.copy} ${nextOpening}: ${nextDate}.`
       : preset.copy;
   }
   if (booking) {
     booking.querySelector("[data-booking-status-title]").textContent = preset.bookingTitle;
     booking.querySelector("[data-booking-status-copy]").textContent = nextDate && status !== "available"
-      ? `${preset.bookingCopy} Next opening: ${nextDate}.`
+      ? `${preset.bookingCopy} ${nextOpening}: ${nextDate}.`
       : preset.bookingCopy;
   }
 }
 
 fetch(availabilityReadApi, { headers: { apikey: supabaseKey } })
   .then((response) => (response.ok ? response.json() : []))
-  .then(([availability]) => { if (availability) renderAvailability(availability); })
+  .then(([availability]) => {
+    if (!availability) return;
+    currentAvailability = availability;
+    renderAvailability(currentAvailability);
+  })
   .catch(() => {});
+
+applyLocale(currentLocale);
 
 document.querySelector("#booking-form").addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -378,14 +533,14 @@ document.querySelector("#booking-form").addEventListener("submit", async (event)
   const fallback = `mailto:rirovault@gmail.com?subject=${subject}&body=${body}`;
 
   if (data.get("website")) {
-    message.textContent = "Thank you. Your enquiry has been received.";
+    message.textContent = localeText("Thank you. Your enquiry has been received.", "Asante. Ombi lako limepokelewa.");
     form.reset();
     return;
   }
 
   const id = crypto.randomUUID();
   button.disabled = true;
-  message.textContent = "Saving your project enquiry…";
+  message.textContent = localeText("Saving your project enquiry…", "Tunahifadhi ombi lako la mradi…");
 
   try {
     const response = await fetch(bookingSubmitApi, {
@@ -410,14 +565,17 @@ document.querySelector("#booking-form").addEventListener("submit", async (event)
     });
     if (!response.ok) throw new Error("Unable to save enquiry");
 
-    message.textContent = `Received — reference VLT-${id.slice(0, 8).toUpperCase()}. The studio will reply within one working day.`;
+    message.textContent = localeText(
+      `Received — reference VLT-${id.slice(0, 8).toUpperCase()}. The studio will reply within one working day.`,
+      `Tumepokea — kumbukumbu VLT-${id.slice(0, 8).toUpperCase()}. Studio itajibu ndani ya siku moja ya kazi.`
+    );
     form.reset();
   } catch {
     message.replaceChildren(
-      document.createTextNode("We could not save this enquiry. "),
+      document.createTextNode(localeText("We could not save this enquiry. ", "Hatukuweza kuhifadhi ombi hili. ")),
       Object.assign(document.createElement("a"), {
         href: fallback,
-        textContent: "Email the brief instead.",
+        textContent: localeText("Email the brief instead.", "Tuma maelezo kwa barua pepe badala yake."),
       })
     );
   } finally {
@@ -484,13 +642,15 @@ reviewForm.addEventListener("submit", async (event) => {
   button.disabled = true;
 
   if (data.get("website")) {
-    reviewMessage.textContent =
-      "Thank you. Your words are with the studio and will appear after approval.";
+    reviewMessage.textContent = localeText(
+      "Thank you. Your words are with the studio and will appear after approval.",
+      "Asante. Maoni yako yamefika studio na yataonekana baada ya kuidhinishwa."
+    );
     reviewForm.reset();
     button.disabled = false;
     return;
   }
-  reviewMessage.textContent = "Sending your review to the studio…";
+  reviewMessage.textContent = localeText("Sending your review to the studio…", "Tunatuma maoni yako studio…");
 
   try {
     const response = await fetch(reviewSubmitApi, {
@@ -511,16 +671,19 @@ reviewForm.addEventListener("submit", async (event) => {
       }),
     });
     if (!response.ok) {
-      throw new Error(
-        "We could not save your review. Please check the form and try again."
-      );
+      throw new Error(localeText(
+        "We could not save your review. Please check the form and try again.",
+        "Hatukuweza kuhifadhi maoni yako. Kagua fomu kisha ujaribu tena."
+      ));
     }
-    reviewMessage.textContent =
-      "Thank you. Your words are with the studio and will appear after approval.";
+    reviewMessage.textContent = localeText(
+      "Thank you. Your words are with the studio and will appear after approval.",
+      "Asante. Maoni yako yamefika studio na yataonekana baada ya kuidhinishwa."
+    );
     reviewForm.reset();
   } catch (error) {
     reviewMessage.textContent =
-      error.message || "We could not save your review. Please try again.";
+      error.message || localeText("We could not save your review. Please try again.", "Hatukuweza kuhifadhi maoni yako. Tafadhali jaribu tena.");
   } finally {
     button.disabled = false;
   }
