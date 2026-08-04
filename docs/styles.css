@@ -57,8 +57,20 @@ button, input, select, textarea { font: inherit; }
 .nav.is-dark > nav:not(.mobile-menu) { color: rgba(255,255,255,.76); }
 .nav.is-dark > nav:not(.mobile-menu) a:hover { color: #fff; }
 .nav.is-dark .availability { border-color: rgba(255,255,255,.34); }
+.nav.is-dark .language-toggle { color: rgba(255,255,255,.52); border-color: rgba(255,255,255,.34); }
+.nav.is-dark .language-toggle .is-active { color: #fff; }
 .nav.is-dark .menu-toggle { color: #fff; border-color: rgba(255,255,255,.34); background: transparent; }
 .nav.is-dark .mobile-menu { color: #17140f; }
+.nav-actions { display: flex; align-items: center; justify-self: end; gap: 9px; }
+.language-toggle {
+  display: inline-flex; min-height: 42px; align-items: center; gap: 5px; padding: 0 13px;
+  color: rgba(23,20,15,.42); background: transparent; border: 1px solid rgba(23,20,15,.2);
+  border-radius: 999px; cursor: pointer; font-size: .58rem; font-weight: 800;
+  letter-spacing: .08em; transition: color 180ms ease, border-color 180ms ease;
+}
+.language-toggle .is-active { color: #17140f; }
+.language-toggle:hover { border-color: currentColor; }
+.language-toggle:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 .availability {
   display: inline-flex;
   align-items: center;
@@ -439,7 +451,7 @@ button, input, select, textarea { font: inherit; }
   .nav { grid-template-columns: 1fr auto auto; gap: 10px; }
   .nav > nav:not(.mobile-menu) { display: none; }
   .menu-toggle { display: block; grid-column: 2; grid-row: 1; }
-  .availability { grid-column: 3; grid-row: 1; }
+  .nav-actions { grid-column: 3; grid-row: 1; }
   .mobile-menu.is-open { display: grid; }
   .motion-object { width: min(53vw, 570px); }
   .motion-scene { width: min(470px, 47vw); }
@@ -459,6 +471,8 @@ button, input, select, textarea { font: inherit; }
   .shell { width: calc(100% - 30px); }
   .nav { right: 15px; left: 15px; }
   .nav { min-height: 84px; }
+  .nav-actions { gap: 6px; }
+  .language-toggle { min-height: 38px; padding-inline: 9px; }
   .availability { padding: 9px 11px; font-size: 0; }
   .availability::after { content: attr(data-status-short); font-size: .58rem; }
   .motion-story { height: 540vh; }
@@ -569,5 +583,10 @@ button, input, select, textarea { font: inherit; }
 .gallery-caption,
 .featured-film-label {
   text-shadow: 0 2px 16px rgba(0, 0, 0, .88);
+}
+
+@media (max-width: 380px) {
+  .nav { grid-template-columns: 1fr auto auto; }
+  .nav-actions .availability { display: none; }
 }
 
