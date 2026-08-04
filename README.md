@@ -29,3 +29,15 @@ CMS field instructions live in `cms/sanity/README.md`. A clean, provider-ready f
 4. Publish. The site refreshes CMS content automatically without a code deployment.
 
 Reviews remain private in `review_submissions` until their status is changed to `approved`. Bookings enter with `new` status. Availability is controlled by the single `availability_status` row with id `studio`.
+
+## Update the studio status
+
+Open Supabase → **Table Editor** → `availability_status` and edit the `studio` row. The public site reads this row automatically; no redeployment is needed.
+
+- `available` — accepting new commissions
+- `limited` — selected production dates remain
+- `engaged` — currently working on a project, while future enquiries remain open
+- `unavailable` — bookings are temporarily paused
+
+Use `message_en` and `message_sw` for the public headline. Set `next_available_date` when the studio knows its next opening, or leave it empty when no date should be displayed.
+
