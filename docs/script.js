@@ -265,6 +265,92 @@ addEventListener("keydown", (event) => {
 const supabaseUrl = "https://hxqsnztxokfemmysyjyw.supabase.co";
 const supabaseKey = "sb_publishable_eu-_vai9eG2R89we1eIlxw_Quzds9c9";
 const bookingSubmitApi = `${supabaseUrl}/rest/v1/booking_submissions`;
+const availabilityReadApi =
+  `${supabaseUrl}/rest/v1/availability_status?id=eq.studio&select=status,message_en,next_available_date&limit=1`;
+
+const availabilityPresets = {
+  available: {
+    short: "Available",
+    nav: "Available for select projects",
+    title: "Now booking new commissions.",
+    copy: "Share your dates, scope and location. We will confirm availability and the best production approach within one working day.",
+    bookingTitle: "Project calendar open",
+    bookingCopy: "Dates are confirmed after a quick brief review.",
+  },
+  limited: {
+    short: "Select dates",
+    nav: "Limited dates available",
+    title: "Limited availability for new commissions.",
+    copy: "A small number of production dates remain open. Send the brief and we will confirm the best fit.",
+    bookingTitle: "Limited dates available",
+    bookingCopy: "Early enquiries are recommended for upcoming work.",
+  },
+  engaged: {
+    short: "In production",
+    nav: "Currently engaged",
+    title: "Currently engaged on a project.",
+    copy: "The studio is in production, but enquiries for future dates are welcome.",
+    bookingTitle: "Currently in production",
+    bookingCopy: "Future project enquiries are still welcome.",
+  },
+  unavailable: {
+    short: "Bookings paused",
+    nav: "Bookings temporarily paused",
+    title: "Bookings are temporarily paused.",
+    copy: "We are not accepting new commissions at the moment. Please check back for the next opening.",
+    bookingTitle: "Project calendar paused",
+    bookingCopy: "New dates will be announced here when bookings reopen.",
+  },
+};
+
+function formatAvailabilityDate(value) {
+  if (!value) return "";
+  const date = new Date(`${value}T12:00:00`);
+  if (Number.isNaN(date.getTime())) return "";
+  return new Intl.DateTimeFormat("en-TZ", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(date);
+}
+
+function renderAvailability(record = {}) {
+  const status = availabilityPresets[record.status] ? record.status : "available";
+  const preset = availabilityPresets[status];
+  const nextDate = formatAvailabilityDate(record.next_available_date);
+  const publicMessage = record.message_en?.trim();
+  const statusClasses = Object.keys(availabilityPresets).map((key) => `status-${key}`);
+  const nav = document.querySelector("[data-availability-nav]");
+  const band = document.querySelector("[data-availability-band]");
+  const booking = document.querySelector("[data-booking-status]");
+
+  [nav, band, booking].forEach((element) => {
+    if (!element) return;
+    element.classList.remove(...statusClasses);
+    element.classList.add(`status-${status}`);
+  });
+  if (nav) {
+    nav.dataset.statusShort = preset.short;
+    nav.querySelector("[data-availability-nav-text]").textContent = preset.nav;
+  }
+  if (band) {
+    band.querySelector("[data-availability-title]").textContent = publicMessage || preset.title;
+    band.querySelector("[data-availability-copy]").textContent = nextDate && status !== "available"
+      ? `${preset.copy} Next opening: ${nextDate}.`
+      : preset.copy;
+  }
+  if (booking) {
+    booking.querySelector("[data-booking-status-title]").textContent = preset.bookingTitle;
+    booking.querySelector("[data-booking-status-copy]").textContent = nextDate && status !== "available"
+      ? `${preset.bookingCopy} Next opening: ${nextDate}.`
+      : preset.bookingCopy;
+  }
+}
+
+fetch(availabilityReadApi, { headers: { apikey: supabaseKey } })
+  .then((response) => (response.ok ? response.json() : []))
+  .then(([availability]) => { if (availability) renderAvailability(availability); })
+  .catch(() => {});
 
 document.querySelector("#booking-form").addEventListener("submit", async (event) => {
   event.preventDefault();
