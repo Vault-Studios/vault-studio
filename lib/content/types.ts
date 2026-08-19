@@ -13,5 +13,6 @@ export type Project = {
   services: string;
   coverImage: string;
   gallery: ProjectGalleryItem[];
+  sourceUrl?: string;
   video: { streamUid?: string; mp4?: string; poster: string; duration?: string };
 };
