@@ -196,9 +196,9 @@ export default function DepthHero({ locale }: { locale: Locale }) {
           className="motionObject"
           style={objectStyle}
           role="img"
-          aria-label="A cinematographer filming on set"
+          aria-label="A participant speaking at the Digital Rights Academy"
         >
-          <div className="motionImage" />
+          <div className="motionImage" style={{ backgroundImage: 'url("https://live.staticflickr.com/65535/55352364856_1ac80df2a9_b.jpg")', backgroundPosition: "center center" }} />
           <div className="motionObjectShade" />
           <div className="motionObjectTop">
             <span>VAULT / FIELD NOTES</span>
