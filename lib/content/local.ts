@@ -1,7 +1,7 @@
 import type { Locale } from "../i18n";
 import type { Project } from "./types";
 
-const images = [
+const eximImages = [
   ["exim-townhall-stage.webp", "Speaker presenting at the Exim Bank Town Hall", "Ideas on stage"],
   ["exim-townhall-speaker.webp", "Exim Bank team member speaking into a microphone", "Voices from the team"],
   ["exim-townhall-audience.webp", "Attendee standing among guests", "Inside the audience"],
@@ -12,28 +12,130 @@ const images = [
   ["exim-townhall-celebration.webp", "Guests celebrating during the Town Hall", "Celebration"],
 ] as const;
 
+const gallery = (items: readonly (readonly [string, string, string])[]) =>
+  items.map(([src, alt, caption]) => ({ src, alt, caption }));
+
 export function localProjects(locale: Locale): Project[] {
   const sw = locale === "sw";
-  return [{
-    slug: "exim-bank-h1-2026-town-hall",
-    locale,
-    client: "Exim Bank",
-    title: "Exim Bank H1 2026 Town Hall",
-    category: sw ? "Tukio la kampuni" : "Corporate event",
-    year: "2026",
-    summary: sw
-      ? "Hadithi ya filamu na picha inayofuata watu, mawazo na matukio yaliyoshirikishwa katika mkutano wa katikati ya mwaka wa Exim Bank."
-      : "A film and photography story following the people, ideas and shared moments behind Exim Bank's mid-year gathering.",
-    location: "Dar es Salaam",
-    services: sw ? "Picha za tukio · Filamu fupi" : "Event photography · Highlight film",
-    coverImage: "/work/exim-bank/exim-townhall-stage.webp",
-    gallery: images.map(([file, alt, caption]) => ({ src: `/work/exim-bank/${file}`, alt, caption })),
-    video: {
-      streamUid: process.env.CLOUDFLARE_STREAM_EXIM_UID,
-      mp4: "https://b13219.github.io/vault/assets/work/exim-bank/exim-bank-highlight.mp4",
-      poster: "/work/exim-bank/exim-townhall-stage.webp",
-      duration: "01:56",
+  return [
+    {
+      slug: "exim-bank-h1-2026-town-hall",
+      locale,
+      client: "Exim Bank",
+      title: "Exim Bank H1 2026 Town Hall",
+      category: sw ? "Tukio la kampuni" : "Corporate event",
+      year: "2026",
+      summary: sw ? "Hadithi ya filamu na picha inayofuata watu, mawazo na matukio yaliyoshirikishwa katika mkutano wa katikati ya mwaka wa Exim Bank." : "A film and photography story following the people, ideas and shared moments behind Exim Bank's mid-year gathering.",
+      location: "Dar es Salaam",
+      services: sw ? "Picha za tukio · Filamu fupi" : "Event photography · Highlight film",
+      coverImage: "/work/exim-bank/exim-townhall-stage.webp",
+      gallery: eximImages.map(([file, alt, caption]) => ({ src: `/work/exim-bank/${file}`, alt, caption })),
+      video: { streamUid: process.env.CLOUDFLARE_STREAM_EXIM_UID, mp4: "https://b13219.github.io/vault/assets/work/exim-bank/exim-bank-highlight.mp4", poster: "/work/exim-bank/exim-townhall-stage.webp", duration: "01:56" },
     },
-  }];
+    {
+      slug: "world-press-freedom-day-2026",
+      locale,
+      client: "TMC · UNESCO",
+      title: "TMC · UNESCO World Press Freedom Day",
+      category: sw ? "Hati na matukio" : "Documentary event",
+      year: "2026",
+      summary: sw ? "Siku mbili za mazungumzo, watu na nguvu ya pamoja katika kuadhimisha uhuru wa vyombo vya habari." : "Two days of conversations, movement and collective energy marking World Press Freedom Day in Dar es Salaam.",
+      location: "Dar es Salaam",
+      services: sw ? "Picha · Matukio · Nyaraka" : "Photography · Events · Documentary",
+      coverImage: "https://live.staticflickr.com/65535/55237798523_90108110c4_b.jpg",
+      gallery: gallery([
+        ["https://live.staticflickr.com/65535/55237798523_90108110c4_b.jpg", "World Press Freedom Day programme in Dar es Salaam", "Day one"],
+        ["https://live.staticflickr.com/65535/55237798488_9590332e74_b.jpg", "Delegate at World Press Freedom Day", "In conversation"],
+        ["https://live.staticflickr.com/65535/55237890084_34fb94355e_c.jpg", "World Press Freedom Day gathering", "The wider story"],
+        ["https://live.staticflickr.com/65535/55237306019_298a47ba83_b.jpg", "Participants at the World Press Freedom Day fun run", "Freedom in motion"],
+      ]),
+      sourceUrl: "https://flic.kr/s/aHBqjCSjMN",
+      video: { poster: "https://live.staticflickr.com/65535/55237798523_90108110c4_b.jpg" },
+    },
+    {
+      slug: "sasa-ceo-learning-session",
+      locale,
+      client: "TMC",
+      title: "TMC SASA CEO Learning Session",
+      category: sw ? "Kikao cha uongozi" : "Leadership session",
+      year: "2026",
+      summary: sw ? "Picha zenye ukaribu za viongozi wakibadilishana maarifa, uzoefu na mawazo." : "An intimate visual record of leaders exchanging knowledge, experience and practical ideas.",
+      location: "Dar es Salaam",
+      services: sw ? "Picha za tukio · Picha za watu" : "Event photography · Portraiture",
+      coverImage: "https://live.staticflickr.com/65535/55384019682_19466780a3_b.jpg",
+      gallery: gallery([
+        ["https://live.staticflickr.com/65535/55384019682_19466780a3_b.jpg", "SASA CEO learning session group portrait", "The cohort"],
+        ["https://live.staticflickr.com/65535/55384945476_aa52f5ae47_b.jpg", "Leader speaking during the SASA session", "Ideas shared"],
+        ["https://live.staticflickr.com/65535/55384945471_6e93b54287_b.jpg", "Participants during the SASA session", "Learning together"],
+      ]),
+      sourceUrl: "https://flic.kr/s/aHBqjCYNdo",
+      video: { poster: "https://live.staticflickr.com/65535/55384019682_19466780a3_b.jpg" },
+    },
+    {
+      slug: "digital-rights-academy-2026",
+      locale,
+      client: "Paradigm Initiative · TMC",
+      title: "Paradigm Initiative · TMC Digital Rights Academy",
+      category: sw ? "Warsha ya siku mbili" : "Two-day academy",
+      year: "2026",
+      summary: sw ? "Hadithi ya siku mbili ya kujifunza, kujadiliana na kujenga uelewa kuhusu haki za kidijitali." : "A two-day story of learning, debate and the people building a stronger culture of digital rights.",
+      location: "Dar es Salaam",
+      services: sw ? "Nyaraka · Picha · Matukio" : "Documentary · Photography · Events",
+      coverImage: "https://live.staticflickr.com/65535/55352364856_1ac80df2a9_b.jpg",
+      gallery: gallery([
+        ["https://live.staticflickr.com/65535/55352364856_1ac80df2a9_b.jpg", "Participant speaking at the Digital Rights Academy", "A point of view"],
+        ["https://live.staticflickr.com/65535/55352364826_b18c837844_b.jpg", "Digital Rights Academy participant", "Listening closely"],
+        ["https://live.staticflickr.com/65535/55352788445_b713fb92d9_b.jpg", "Discussion at the Digital Rights Academy", "Exchange"],
+        ["https://live.staticflickr.com/65535/55350443115_5228e2694e_b.jpg", "Speaker presenting at the Digital Rights Academy", "Day one"],
+        ["https://live.staticflickr.com/65535/55350183338_831a788412_b.jpg", "Academy participants in session", "The room"],
+        ["https://live.staticflickr.com/65535/55350243544_02a6df5d24_b.jpg", "Digital Rights Academy workshop moment", "Working session"],
+      ]),
+      sourceUrl: "https://flic.kr/s/aHBqjCXqVf",
+      video: { poster: "https://live.staticflickr.com/65535/55352364856_1ac80df2a9_b.jpg" },
+    },
+    {
+      slug: "africa-innotech-forum-2026",
+      locale,
+      client: "Africa Innotech Forum",
+      title: "Africa Innotech Forum 2026",
+      category: sw ? "Mkutano wa ubunifu" : "Innovation forum",
+      year: "2026",
+      summary: sw ? "Kutoka mkutano na waandishi wa habari hadi jukwaa kuu, picha zenye nguvu za watu wanaounda mustakabali wa teknolojia Afrika." : "From the press conference to the main forum, an energetic portrait of the people shaping Africa's technology future.",
+      location: "Dar es Salaam",
+      services: sw ? "Matukio · Kampeni · Picha" : "Events · Campaign · Photography",
+      coverImage: "https://live.staticflickr.com/65535/55338692865_14f87b66f8_b.jpg",
+      gallery: gallery([
+        ["https://live.staticflickr.com/65535/55338274351_0e7dc355f6_b.jpg", "Africa Innotech Forum welcome stage", "Opening frame"],
+        ["https://live.staticflickr.com/65535/55338692865_14f87b66f8_b.jpg", "Africa Innotech Forum delegate", "Inside the forum"],
+        ["https://live.staticflickr.com/65535/55337346942_9ee16e4c05_b.jpg", "Africa Innotech Forum programme", "Ideas in motion"],
+        ["https://live.staticflickr.com/65535/55247161202_d52d46bf93_b.jpg", "Africa Innotech Forum press conference", "Press room"],
+        ["https://live.staticflickr.com/65535/55248060161_7b9120d639_b.jpg", "Speaker at the Innotech press conference", "The announcement"],
+        ["https://live.staticflickr.com/65535/55248466340_c47a5417d4_b.jpg", "Innotech press conference guests", "Before the forum"],
+      ]),
+      sourceUrl: "https://flic.kr/s/aHBqjCWz7n",
+      video: { poster: "https://live.staticflickr.com/65535/55338692865_14f87b66f8_b.jpg" },
+    },
+    {
+      slug: "tmc-digital-policy-dialogues",
+      locale,
+      client: "Tech & Media Convergency",
+      title: "Tech & Media Convergency Digital Policy Dialogues",
+      category: sw ? "Mijadala ya sera" : "Policy dialogues",
+      year: "2026",
+      summary: sw ? "Mfululizo wa mijadala kuhusu AI, miundombinu ya kidijitali, ufadhili wa wabunifu na mapato ya kidijitali Tanzania." : "A continuing series on AI, digital public infrastructure, creator financing and Tanzania's emerging digital revenue policy.",
+      location: "Dar es Salaam",
+      services: sw ? "Nyaraka · Picha za watu · Matukio" : "Documentary · Portraiture · Events",
+      coverImage: "https://live.staticflickr.com/65535/55301102055_997fe1102e_b.jpg",
+      gallery: gallery([
+        ["https://live.staticflickr.com/65535/55301102055_997fe1102e_b.jpg", "Speaker at the inclusive digital futures dialogue", "Digital futures"],
+        ["https://live.staticflickr.com/65535/55286181541_83e9490fed_b.jpg", "Facilitator at the digital infrastructure dialogue", "Beyond infrastructure"],
+        ["https://images.pixieset.com/854242311/e0aa9d134c32fbb5faaf9f7824a91975-cover.jpg", "Funding without framework dialogue group", "Creator financing"],
+        ["https://images.pixieset.com/854242311/891ebacd254544efb6b12e7f91d4a86c-large.jpg", "Participant at the creator financing dialogue", "Inside the dialogue"],
+        ["https://live.staticflickr.com/65535/55154847180_fd5c899c50_b.jpg", "Digital revenue policy dialogue group", "Taxing the clicks"],
+        ["https://live.staticflickr.com/65535/55154848130_aa315bf514_b.jpg", "Participant at the digital revenue policy dialogue", "Creator economy"],
+      ]),
+      sourceUrl: "https://thevault93.pixieset.com/fgdfundingwithoutframeworkstateandprivatefinancingofdigitalcreatorsintanzaniaanditsimplicationsformedia/",
+      video: { poster: "https://live.staticflickr.com/65535/55301102055_997fe1102e_b.jpg" },
+    },
+  ];
 }
-
