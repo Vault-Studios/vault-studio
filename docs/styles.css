@@ -594,3 +594,12 @@ button, input, select, textarea { font: inherit; }
   .nav-actions .availability { display: none; }
 }
 
+
+/* Curated multi-project portfolio */
+.project-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px; }
+.project-grid .project-card { min-height:min(68vh,660px); }
+.project-grid .project-card-meta strong { font-size:clamp(2.45rem,4.6vw,5.6rem); }
+.source-album { margin-top:24px !important; }
+.source-album a { color:var(--gold); text-decoration:underline; text-underline-offset:4px; }
+.motion-image { background-image:url("https://live.staticflickr.com/65535/55352364856_1ac80df2a9_b.jpg") !important; background-position:center center !important; }
+@media (max-width:900px){.project-grid{grid-template-columns:1fr}.project-grid .project-card{min-height:62vh}}
