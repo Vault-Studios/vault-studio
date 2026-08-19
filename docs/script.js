@@ -689,3 +689,68 @@ reviewForm.addEventListener("submit", async (event) => {
   }
 });
 
+
+/* Curated portfolio expansion — sourced from Vault's commissioned galleries. */
+const curatedPortfolio = [{"client":"TMC · UNESCO","title":"World Press Freedom Day","meta":"Documentary event · 2026","summary":"Two days of conversations, movement and collective energy marking World Press Freedom Day in Dar es Salaam.","services":"Photography · Events · Documentary","cover":"https://live.staticflickr.com/65535/55237798523_90108110c4_b.jpg","source":"https://flic.kr/s/aHBqjCSjMN","images":[["https://live.staticflickr.com/65535/55237798523_90108110c4_b.jpg","World Press Freedom Day programme","Day one"],["https://live.staticflickr.com/65535/55237798488_9590332e74_b.jpg","Delegate at World Press Freedom Day","In conversation"],["https://live.staticflickr.com/65535/55237890084_34fb94355e_c.jpg","World Press Freedom Day gathering","The wider story"],["https://live.staticflickr.com/65535/55237306019_298a47ba83_b.jpg","Participants at the World Press Freedom Day fun run","Freedom in motion"]]},{"client":"TMC","title":"SASA CEO Learning Session","meta":"Leadership session · 2026","summary":"An intimate visual record of leaders exchanging knowledge, experience and practical ideas.","services":"Event photography · Portraiture","cover":"https://live.staticflickr.com/65535/55384019682_19466780a3_b.jpg","source":"https://flic.kr/s/aHBqjCYNdo","images":[["https://live.staticflickr.com/65535/55384019682_19466780a3_b.jpg","SASA CEO learning session group portrait","The cohort"],["https://live.staticflickr.com/65535/55384945476_aa52f5ae47_b.jpg","Leader speaking during the SASA session","Ideas shared"],["https://live.staticflickr.com/65535/55384945471_6e93b54287_b.jpg","Participants during the SASA session","Learning together"]]},{"client":"Paradigm Initiative · TMC","title":"Digital Rights Academy","meta":"Two-day academy · 2026","summary":"A two-day story of learning, debate and the people building a stronger culture of digital rights.","services":"Documentary · Photography · Events","cover":"https://live.staticflickr.com/65535/55352364856_1ac80df2a9_b.jpg","source":"https://flic.kr/s/aHBqjCXqVf","images":[["https://live.staticflickr.com/65535/55352364856_1ac80df2a9_b.jpg","Participant speaking at the Digital Rights Academy","A point of view"],["https://live.staticflickr.com/65535/55352364826_b18c837844_b.jpg","Digital Rights Academy participant","Listening closely"],["https://live.staticflickr.com/65535/55352788445_b713fb92d9_b.jpg","Discussion at the Digital Rights Academy","Exchange"],["https://live.staticflickr.com/65535/55350443115_5228e2694e_b.jpg","Speaker presenting at the Digital Rights Academy","Day one"],["https://live.staticflickr.com/65535/55350183338_831a788412_b.jpg","Academy participants in session","The room"],["https://live.staticflickr.com/65535/55350243544_02a6df5d24_b.jpg","Digital Rights Academy workshop moment","Working session"]]},{"client":"Africa Innotech Forum","title":"Africa Innotech Forum 2026","meta":"Innovation forum · 2026","summary":"From the press conference to the main forum, an energetic portrait of the people shaping Africa's technology future.","services":"Events · Campaign · Photography","cover":"https://live.staticflickr.com/65535/55338692865_14f87b66f8_b.jpg","source":"https://flic.kr/s/aHBqjCWz7n","images":[["https://live.staticflickr.com/65535/55338274351_0e7dc355f6_b.jpg","Africa Innotech Forum welcome stage","Opening frame"],["https://live.staticflickr.com/65535/55338692865_14f87b66f8_b.jpg","Africa Innotech Forum delegate","Inside the forum"],["https://live.staticflickr.com/65535/55337346942_9ee16e4c05_b.jpg","Africa Innotech Forum programme","Ideas in motion"],["https://live.staticflickr.com/65535/55247161202_d52d46bf93_b.jpg","Africa Innotech Forum press conference","Press room"],["https://live.staticflickr.com/65535/55248060161_7b9120d639_b.jpg","Speaker at the Innotech press conference","The announcement"],["https://live.staticflickr.com/65535/55248466340_c47a5417d4_b.jpg","Innotech press conference guests","Before the forum"]]},{"client":"Tech & Media Convergency","title":"Digital Policy Dialogues","meta":"Policy dialogues · 2026","summary":"A continuing series on AI, digital public infrastructure, creator financing and Tanzania's emerging digital revenue policy.","services":"Documentary · Portraiture · Events","cover":"https://live.staticflickr.com/65535/55301102055_997fe1102e_b.jpg","source":"https://thevault93.pixieset.com/fgdfundingwithoutframeworkstateandprivatefinancingofdigitalcreatorsintanzaniaanditsimplicationsformedia/","images":[["https://live.staticflickr.com/65535/55301102055_997fe1102e_b.jpg","Speaker at the inclusive digital futures dialogue","Digital futures"],["https://live.staticflickr.com/65535/55286181541_83e9490fed_b.jpg","Facilitator at the digital infrastructure dialogue","Beyond infrastructure"],["https://images.pixieset.com/854242311/e0aa9d134c32fbb5faaf9f7824a91975-cover.jpg","Funding without framework dialogue group","Creator financing"],["https://images.pixieset.com/854242311/891ebacd254544efb6b12e7f91d4a86c-large.jpg","Participant at the creator financing dialogue","Inside the dialogue"],["https://live.staticflickr.com/65535/55154847180_fd5c899c50_b.jpg","Digital revenue policy dialogue group","Taxing the clicks"],["https://live.staticflickr.com/65535/55154848130_aa315bf514_b.jpg","Participant at the digital revenue policy dialogue","Creator economy"]]}];
+document.addEventListener("DOMContentLoaded", () => {
+  const grid = document.querySelector(".project-grid");
+  const workSection = document.querySelector(".work-section");
+  if (!grid || !workSection) return;
+  const firstNumber = grid.querySelector(".project-card-number");
+  if (firstNumber) firstNumber.textContent = "01 / 06";
+
+  const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (char) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[char]));
+  curatedPortfolio.forEach((project, offset) => {
+    const number = String(offset + 2).padStart(2, "0");
+    const card = document.createElement("button");
+    card.className = "project-card curated-project-card";
+    card.type = "button";
+    card.setAttribute("aria-haspopup", "dialog");
+    card.innerHTML = `
+      <img src="${escapeHtml(project.cover)}" alt="${escapeHtml(project.title)} preview" loading="lazy" />
+      <span class="project-card-shade"></span><span class="project-card-number">${number} / 06</span>
+      <span class="project-card-open" aria-hidden="true">↗</span>
+      <span class="project-card-meta"><small>${escapeHtml(project.meta)}</small><strong>${escapeHtml(project.client)}<br />${escapeHtml(project.title)}</strong><em>View the full project</em></span>`;
+    grid.appendChild(card);
+
+    const modal = document.createElement("div");
+    modal.className = "case-study curated-case-study";
+    modal.setAttribute("aria-hidden", "true");
+    const figures = project.images.map((image, imageIndex) => `
+      <figure class="${imageIndex === 0 ? "is-active" : ""}" aria-hidden="${imageIndex ? "true" : "false"}" data-caption="${escapeHtml(image[2])}">
+        <img src="${escapeHtml(image[0])}" alt="${imageIndex ? "" : escapeHtml(image[1])}" data-alt="${escapeHtml(image[1])}" loading="lazy" />
+      </figure>`).join("");
+    modal.innerHTML = `
+      <div class="case-study-backdrop" data-curated-close></div>
+      <article class="case-study-panel" role="dialog" aria-modal="true" aria-label="${escapeHtml(project.title)}">
+        <div class="case-study-bar"><span>Vault / Selected work / ${number}</span><button type="button" data-curated-close>Close <i aria-hidden="true">×</i></button></div>
+        <div class="case-study-intro shell"><div><span>${number} / ${escapeHtml(project.meta.split(" · ")[0])}</span><h3>${escapeHtml(project.client)}<br />${escapeHtml(project.title)}</h3></div>
+        <div class="case-study-copy"><p>${escapeHtml(project.summary)}</p><dl><div><dt>Location</dt><dd>Dar es Salaam</dd></div><div><dt>Year</dt><dd>2026</dd></div><div><dt>Services</dt><dd>${escapeHtml(project.services)}</dd></div></dl><p class="source-album"><a href="${escapeHtml(project.source)}" target="_blank" rel="noreferrer">View source album ↗</a></p></div></div>
+        <section class="project-gallery" aria-roledescription="carousel" aria-label="${escapeHtml(project.title)} gallery" tabindex="0">
+          <div class="gallery-viewport" aria-live="polite">${figures}<div class="gallery-shade"></div>
+          <div class="gallery-caption"><span>01 / ${String(project.images.length).padStart(2,"0")}</span><p>${escapeHtml(project.images[0][2])}</p></div>
+          <div class="gallery-arrows"><button type="button" data-curated-prev aria-label="Previous photo">←</button><button type="button" data-curated-next aria-label="Next photo">→</button></div></div>
+          <div class="gallery-dots" aria-label="Choose a photo"></div>
+        </section>
+        <div class="case-study-cta shell"><div><span>Have a story of your own?</span><h4>Let's create the next one.</h4></div><a href="#book" data-curated-close>Start a project <span aria-hidden="true">↗</span></a></div>
+      </article>`;
+    workSection.appendChild(modal);
+
+    const close = () => { modal.classList.remove("is-open"); modal.setAttribute("aria-hidden","true"); document.body.style.overflow=""; card.focus(); };
+    card.addEventListener("click", () => { modal.classList.add("is-open"); modal.setAttribute("aria-hidden","false"); document.body.style.overflow="hidden"; modal.querySelector("[data-curated-close]")?.focus(); });
+    modal.querySelectorAll("[data-curated-close]").forEach((button) => button.addEventListener("click", close));
+    let active = 0;
+    const slides = [...modal.querySelectorAll(".project-gallery figure")];
+    const captionCount = modal.querySelector(".gallery-caption span");
+    const captionText = modal.querySelector(".gallery-caption p");
+    const show = (next) => {
+      active = (next + slides.length) % slides.length;
+      slides.forEach((slide, i) => { slide.classList.toggle("is-active", i === active); slide.setAttribute("aria-hidden", String(i !== active)); const image=slide.querySelector("img"); if(image) image.alt=i===active ? image.dataset.alt || "" : ""; });
+      if (captionCount) captionCount.textContent = `${String(active+1).padStart(2,"0")} / ${String(slides.length).padStart(2,"0")}`;
+      if (captionText) captionText.textContent = slides[active]?.dataset.caption || "";
+    };
+    modal.querySelector("[data-curated-prev]")?.addEventListener("click", () => show(active - 1));
+    modal.querySelector("[data-curated-next]")?.addEventListener("click", () => show(active + 1));
+    modal.addEventListener("keydown", (event) => { if(event.key==="Escape") close(); if(event.key==="ArrowLeft") show(active-1); if(event.key==="ArrowRight") show(active+1); });
+  });
+});
