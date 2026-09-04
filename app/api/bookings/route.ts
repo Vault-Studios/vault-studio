@@ -57,10 +57,17 @@ export async function POST(request: Request) {
       method: "POST",
       headers: { "Content-Type": "application/json", Prefer: "return=minimal" },
       body: JSON.stringify({
-        id: booking.id, name: booking.name, company: booking.company,
-        email: booking.email, phone: booking.phone, service: booking.service,
-        preferred_date: booking.preferredDate || null, location: booking.location,
-        brief: booking.brief, status: "new",
+        id: booking.id,
+        name: booking.name,
+        company: booking.company,
+        email: booking.email,
+        phone: booking.phone,
+        service: booking.service,
+        preferred_date: booking.preferredDate || null,
+        budget: booking.budget,
+        location: booking.location,
+        brief: booking.brief,
+        status: "new",
       }),
     });
 
