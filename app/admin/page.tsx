@@ -4,9 +4,10 @@ import { getAdminSession } from "../../lib/admin-auth";
 import { getSupabasePublicConfig } from "../../lib/supabase";
 import LogoutButton from "./LogoutButton";
 
-async function getCount(table: string, accessToken: string): Promise<number> {
+async function getCount(table: string, accessToken: string, filter = ""): Promise<number> {
   const { url, key } = getSupabasePublicConfig();
-  const response = await fetch(`${url}/rest/v1/${table}?select=id`, {
+  const query = filter ? `${filter}&select=id` : "select=id";
+  const response = await fetch(`${url}/rest/v1/${table}?${query}`, {
     method: "HEAD",
     headers: {
       apikey: key,
@@ -27,9 +28,11 @@ export default async function AdminDashboardPage() {
   const session = await getAdminSession();
   if (!session) redirect("/admin/login");
 
-  const [projects, images] = await Promise.all([
+  const [projects, images, bookings, pendingReviews] = await Promise.all([
     getCount("projects", session.accessToken),
     getCount("project_images", session.accessToken),
+    getCount("booking_submissions", session.accessToken, "status=in.(new,contacted)"),
+    getCount("review_submissions", session.accessToken, "status=eq.pending"),
   ]);
 
   return (
@@ -43,31 +46,37 @@ export default async function AdminDashboardPage() {
       </header>
 
       <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16, marginBottom: 36 }}>
-        <Stat label="Projects" value={projects} />
-        <Stat label="Project images" value={images} />
-        <Stat label="Bookings" value="Next" />
-        <Stat label="Reviews" value="Next" />
+        <Stat label="Projects" value={projects} href="/admin/projects" />
+        <Stat label="Project images" value={images} href="/admin/projects" />
+        <Stat label="Open bookings" value={bookings} href="/admin/bookings" />
+        <Stat label="Pending reviews" value={pendingReviews} href="/admin/reviews" />
       </section>
 
-      <section style={{ border: "1px solid rgba(255,255,255,.12)", borderRadius: 24, padding: 28, background: "rgba(255,255,255,.025)" }}>
-        <p style={{ margin: "0 0 10px", fontSize: 12, letterSpacing: ".16em", textTransform: "uppercase", opacity: .5 }}>Portfolio CMS</p>
-        <h2 style={{ margin: "0 0 12px", fontSize: 26, fontWeight: 500 }}>Project management is live.</h2>
-        <p style={{ margin: "0 0 20px", maxWidth: 700, lineHeight: 1.7, opacity: .7 }}>
-          Create portfolio entries, keep them as drafts, publish them, edit details and remove projects from one protected workspace.
-        </p>
-        <Link href="/admin/projects" style={{ display: "inline-block", background: "white", color: "black", padding: "12px 18px", borderRadius: 999, textDecoration: "none", fontWeight: 600 }}>
-          Manage projects →
-        </Link>
+      <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 16 }}>
+        <AdminCard eyebrow="Portfolio CMS" title="Manage projects" copy="Create projects, upload galleries, choose covers and control what is published." href="/admin/projects" cta="Manage projects →" />
+        <AdminCard eyebrow="Client pipeline" title="Manage bookings" copy="Review incoming briefs and move enquiries from new to confirmed or completed." href="/admin/bookings" cta="Open bookings →" />
+        <AdminCard eyebrow="Social proof" title="Moderate reviews" copy="Approve client reviews for the public site, reject submissions or return them to pending." href="/admin/reviews" cta="Moderate reviews →" />
       </section>
     </main>
   );
 }
 
-function Stat({ label, value }: { label: string; value: number | string }) {
+function Stat({ label, value, href }: { label: string; value: number | string; href: string }) {
   return (
-    <article style={{ border: "1px solid rgba(255,255,255,.12)", borderRadius: 20, padding: 22, background: "rgba(255,255,255,.025)" }}>
+    <Link href={href} style={{ color: "inherit", textDecoration: "none", border: "1px solid rgba(255,255,255,.12)", borderRadius: 20, padding: 22, background: "rgba(255,255,255,.025)" }}>
       <p style={{ margin: "0 0 18px", fontSize: 12, letterSpacing: ".14em", textTransform: "uppercase", opacity: .5 }}>{label}</p>
       <strong style={{ fontSize: 34, fontWeight: 500 }}>{value}</strong>
-    </article>
+    </Link>
+  );
+}
+
+function AdminCard({ eyebrow, title, copy, href, cta }: { eyebrow: string; title: string; copy: string; href: string; cta: string }) {
+  return (
+    <section style={{ border: "1px solid rgba(255,255,255,.12)", borderRadius: 24, padding: 28, background: "rgba(255,255,255,.025)" }}>
+      <p style={{ margin: "0 0 10px", fontSize: 12, letterSpacing: ".16em", textTransform: "uppercase", opacity: .5 }}>{eyebrow}</p>
+      <h2 style={{ margin: "0 0 12px", fontSize: 25, fontWeight: 500 }}>{title}</h2>
+      <p style={{ margin: "0 0 20px", lineHeight: 1.7, opacity: .7 }}>{copy}</p>
+      <Link href={href} style={{ display: "inline-block", background: "white", color: "black", padding: "11px 16px", borderRadius: 999, textDecoration: "none", fontWeight: 600 }}>{cta}</Link>
+    </section>
   );
 }
