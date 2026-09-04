@@ -51,12 +51,15 @@ export default function DepthHero({ locale }: { locale: Locale }) {
   const animationRef = useRef(0);
   const reducedRef = useRef(false);
   const [progress, setProgress] = useState(0);
+  const [reducedMotion, setReducedMotion] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    reducedRef.current = window.matchMedia(
+    const reduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
+    reducedRef.current = reduced;
+    setReducedMotion(reduced);
 
     const measure = () => {
       const section = sectionRef.current;
@@ -107,7 +110,7 @@ export default function DepthHero({ locale }: { locale: Locale }) {
   const x = interpolate(progress, [30, 19, 26, 0, -25, 0, 0]);
   const y = interpolate(progress, [64, 6, -4, 0, 5, 0, -8]);
   const scale = interpolate(progress, [0.52, 0.76, 0.9, 2.45, 0.78, 1.5, 2.65]);
-  const rotate = reducedRef.current
+  const rotate = reducedMotion
     ? 0
     : interpolate(progress, [-13, -4, 7, 0, -7, 2, 0]);
   const radius = interpolate(progress, [44, 36, 28, 2, 34, 18, 0]);
