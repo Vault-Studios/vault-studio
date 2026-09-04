@@ -11,37 +11,75 @@ function safeFileName(name: string) {
   return `${base}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
 }
 
+type SignPayload = {
+  action: "sign";
+  file_name?: string;
+  content_type?: string;
+  size?: number;
+};
+
+type CompletePayload = {
+  action: "complete";
+  object_path?: string;
+  alt_text?: string;
+  make_cover?: boolean;
+};
+
+type Payload = SignPayload | CompletePayload;
+
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   const session = await getAdminSession();
   if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await context.params;
-  const form = await request.formData();
-  const file = form.get("file");
-  const altText = typeof form.get("alt_text") === "string" ? String(form.get("alt_text")).trim().slice(0, 300) : "";
-  const makeCover = form.get("make_cover") === "true";
-
-  if (!(file instanceof File)) return Response.json({ error: "Choose an image to upload." }, { status: 400 });
-  if (!allowedTypes.has(file.type)) return Response.json({ error: "Use JPG, PNG, WebP or AVIF images." }, { status: 400 });
-  if (file.size > maxBytes) return Response.json({ error: "Image must be 12 MB or smaller." }, { status: 400 });
+  const body = (await request.json().catch(() => null)) as Payload | null;
+  if (!body || (body.action !== "sign" && body.action !== "complete")) {
+    return Response.json({ error: "Invalid image request." }, { status: 400 });
+  }
 
   const { url, key } = getSupabasePublicConfig();
-  const filename = safeFileName(file.name);
-  const objectPath = `${id}/${filename}`;
-  const upload = await fetch(`${url}/storage/v1/object/project-images/${encodeURIComponent(objectPath).replace(/%2F/g, "/")}`, {
-    method: "POST",
-    headers: {
-      apikey: key,
-      Authorization: `Bearer ${session.accessToken}`,
-      "Content-Type": file.type,
-      "x-upsert": "false",
-    },
-    body: await file.arrayBuffer(),
-  });
 
-  if (!upload.ok) {
-    const details = await upload.json().catch(() => null);
-    return Response.json({ error: details?.message || "Could not upload image. Check the project-images Storage policy." }, { status: 400 });
+  if (body.action === "sign") {
+    const fileName = typeof body.file_name === "string" ? body.file_name.trim() : "";
+    const contentType = typeof body.content_type === "string" ? body.content_type : "";
+    const size = typeof body.size === "number" ? body.size : 0;
+
+    if (!fileName) return Response.json({ error: "Choose an image to upload." }, { status: 400 });
+    if (!allowedTypes.has(contentType)) return Response.json({ error: "Use JPG, PNG, WebP or AVIF images." }, { status: 400 });
+    if (!Number.isFinite(size) || size <= 0) return Response.json({ error: "Image file is empty." }, { status: 400 });
+    if (size > maxBytes) return Response.json({ error: "Image must be 12 MB or smaller." }, { status: 400 });
+
+    const objectPath = `${id}/${safeFileName(fileName)}`;
+    const encodedPath = encodeURIComponent(objectPath).replace(/%2F/g, "/");
+    const signed = await fetch(`${url}/storage/v1/object/upload/sign/project-images/${encodedPath}`, {
+      method: "POST",
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${session.accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: "{}",
+      cache: "no-store",
+    });
+
+    const signedData = await signed.json().catch(() => null) as { url?: string; message?: string } | null;
+    if (!signed.ok || !signedData?.url) {
+      return Response.json({ error: signedData?.message || "Could not prepare image upload. Check the project-images Storage policy." }, { status: 400 });
+    }
+
+    const signedUrl = signedData.url.startsWith("http")
+      ? signedData.url
+      : `${url}/storage/v1${signedData.url}`;
+
+    return Response.json({ object_path: objectPath, signed_url: signedUrl });
+  }
+
+  const objectPath = typeof body.object_path === "string" ? body.object_path.trim() : "";
+  const altText = typeof body.alt_text === "string" ? body.alt_text.trim().slice(0, 300) : "";
+  const makeCover = body.make_cover === true;
+
+  if (!objectPath || !objectPath.startsWith(`${id}/`) || objectPath.includes("..")) {
+    return Response.json({ error: "Invalid uploaded image path." }, { status: 400 });
   }
 
   const publicUrl = `${url}/storage/v1/object/public/project-images/${objectPath}`;
@@ -65,7 +103,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
 
   const rows = await insert.json().catch(() => null);
   if (!insert.ok) {
-    await fetch(`${url}/storage/v1/object/project-images/${encodeURIComponent(objectPath).replace(/%2F/g, "/")}`, {
+    const encodedPath = encodeURIComponent(objectPath).replace(/%2F/g, "/");
+    await fetch(`${url}/storage/v1/object/project-images/${encodedPath}`, {
       method: "DELETE",
       headers: { apikey: key, Authorization: `Bearer ${session.accessToken}` },
     }).catch(() => null);
