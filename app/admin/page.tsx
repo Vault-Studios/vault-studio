@@ -28,28 +28,38 @@ export default async function AdminDashboardPage() {
   const session = await getAdminSession();
   if (!session) redirect("/admin/login");
 
-  const [projects, images, bookings, pendingReviews] = await Promise.all([
+  const [projects, images, openBookings, pendingReviews, drafts, published] = await Promise.all([
     getCount("projects", session.accessToken),
     getCount("project_images", session.accessToken),
     getCount("booking_submissions", session.accessToken, "status=in.(new,contacted)"),
     getCount("review_submissions", session.accessToken, "status=eq.pending"),
+    getCount("projects", session.accessToken, "is_published=eq.false"),
+    getCount("projects", session.accessToken, "is_published=eq.true"),
   ]);
+
+  const attention = openBookings + pendingReviews + drafts;
 
   return (
     <main style={{ minHeight: "100vh", background: "#080808", color: "white", padding: "32px clamp(20px, 5vw, 72px)" }}>
-      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, marginBottom: 48 }}>
+      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, marginBottom: 36, flexWrap: "wrap" }}>
         <div>
           <p style={{ margin: "0 0 8px", fontSize: 12, letterSpacing: ".2em", textTransform: "uppercase", opacity: .55 }}>Vault Studio</p>
           <h1 style={{ margin: 0, fontSize: "clamp(30px, 5vw, 56px)", fontWeight: 500 }}>Studio Admin</h1>
+          <p style={{ margin: "12px 0 0", opacity: .55, fontSize: 14 }}>{attention ? `${attention} item${attention === 1 ? "" : "s"} need attention.` : "Everything is clear right now."}</p>
         </div>
         <LogoutButton />
       </header>
 
-      <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16, marginBottom: 36 }}>
-        <Stat label="Projects" value={projects} href="/admin/projects" />
-        <Stat label="Project images" value={images} href="/admin/projects" />
-        <Stat label="Open bookings" value={bookings} href="/admin/bookings" />
-        <Stat label="Pending reviews" value={pendingReviews} href="/admin/reviews" />
+      <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14, marginBottom: 20 }}>
+        <Stat label="Open bookings" value={openBookings} href="/admin/bookings" emphasis={openBookings > 0} />
+        <Stat label="Pending reviews" value={pendingReviews} href="/admin/reviews" emphasis={pendingReviews > 0} />
+        <Stat label="Draft projects" value={drafts} href="/admin/projects" emphasis={drafts > 0} />
+        <Stat label="Published" value={published} href="/admin/projects" />
+      </section>
+
+      <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14, marginBottom: 36 }}>
+        <MiniStat label="Total projects" value={projects} />
+        <MiniStat label="Project images" value={images} />
       </section>
 
       <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 16 }}>
@@ -61,12 +71,21 @@ export default async function AdminDashboardPage() {
   );
 }
 
-function Stat({ label, value, href }: { label: string; value: number | string; href: string }) {
+function Stat({ label, value, href, emphasis = false }: { label: string; value: number; href: string; emphasis?: boolean }) {
   return (
-    <Link href={href} style={{ color: "inherit", textDecoration: "none", border: "1px solid rgba(255,255,255,.12)", borderRadius: 20, padding: 22, background: "rgba(255,255,255,.025)" }}>
-      <p style={{ margin: "0 0 18px", fontSize: 12, letterSpacing: ".14em", textTransform: "uppercase", opacity: .5 }}>{label}</p>
+    <Link href={href} style={{ color: "inherit", textDecoration: "none", border: emphasis ? "1px solid rgba(213,165,69,.55)" : "1px solid rgba(255,255,255,.12)", borderRadius: 20, padding: 22, background: emphasis ? "rgba(213,165,69,.08)" : "rgba(255,255,255,.025)" }}>
+      <p style={{ margin: "0 0 18px", fontSize: 12, letterSpacing: ".14em", textTransform: "uppercase", opacity: .55 }}>{label}</p>
       <strong style={{ fontSize: 34, fontWeight: 500 }}>{value}</strong>
     </Link>
+  );
+}
+
+function MiniStat({ label, value }: { label: string; value: number }) {
+  return (
+    <div style={{ border: "1px solid rgba(255,255,255,.08)", borderRadius: 16, padding: "15px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 20, opacity: .72 }}>
+      <span style={{ fontSize: 13 }}>{label}</span>
+      <strong style={{ fontSize: 18, fontWeight: 500 }}>{value}</strong>
+    </div>
   );
 }
 
