@@ -10,6 +10,11 @@ type GalleryImage = {
   sort_order: number;
 };
 
+type SignedUpload = {
+  object_path: string;
+  signed_url: string;
+};
+
 export default function ProjectImages({ projectId, images }: { projectId: string; images: GalleryImage[] }) {
   const router = useRouter();
   const [uploading, setUploading] = useState(false);
@@ -22,10 +27,55 @@ export default function ProjectImages({ projectId, images }: { projectId: string
     setUploading(true);
     const form = event.currentTarget;
     const data = new FormData(form);
+    const file = data.get("file");
+    const altText = typeof data.get("alt_text") === "string" ? String(data.get("alt_text")) : "";
+    const makeCover = data.get("make_cover") === "true";
+
     try {
-      const response = await fetch(`/api/admin/projects/${projectId}/images`, { method: "POST", body: data });
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(result.error || "Upload failed.");
+      if (!(file instanceof File) || file.size === 0) throw new Error("Choose an image to upload.");
+
+      const signResponse = await fetch(`/api/admin/projects/${projectId}/images`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "sign",
+          file_name: file.name,
+          content_type: file.type,
+          size: file.size,
+        }),
+      });
+      const signed = (await signResponse.json().catch(() => ({}))) as Partial<SignedUpload> & { error?: string };
+      if (!signResponse.ok || !signed.object_path || !signed.signed_url) {
+        throw new Error(signed.error || "Could not prepare image upload.");
+      }
+
+      const uploadBody = new FormData();
+      uploadBody.append("cacheControl", "3600");
+      uploadBody.append("", file);
+
+      const storageResponse = await fetch(signed.signed_url, {
+        method: "PUT",
+        headers: { "x-upsert": "false" },
+        body: uploadBody,
+      });
+      if (!storageResponse.ok) {
+        const storageError = (await storageResponse.json().catch(() => null)) as { message?: string } | null;
+        throw new Error(storageError?.message || "Storage upload failed.");
+      }
+
+      const completeResponse = await fetch(`/api/admin/projects/${projectId}/images`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "complete",
+          object_path: signed.object_path,
+          alt_text: altText,
+          make_cover: makeCover,
+        }),
+      });
+      const result = await completeResponse.json().catch(() => ({}));
+      if (!completeResponse.ok) throw new Error(result.error || "Image uploaded but could not be added to the gallery.");
+
       form.reset();
       router.refresh();
     } catch (err) {
