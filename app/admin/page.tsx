@@ -1,9 +1,8 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getAdminSession } from "../../lib/admin-auth";
 import { getSupabasePublicConfig } from "../../lib/supabase";
 import LogoutButton from "./LogoutButton";
-
-type CountResult = { count: number | null };
 
 async function getCount(table: string, accessToken: string): Promise<number> {
   const { url, key } = getSupabasePublicConfig();
@@ -51,11 +50,14 @@ export default async function AdminDashboardPage() {
       </section>
 
       <section style={{ border: "1px solid rgba(255,255,255,.12)", borderRadius: 24, padding: 28, background: "rgba(255,255,255,.025)" }}>
-        <p style={{ margin: "0 0 10px", fontSize: 12, letterSpacing: ".16em", textTransform: "uppercase", opacity: .5 }}>CMS Foundation</p>
-        <h2 style={{ margin: "0 0 12px", fontSize: 26, fontWeight: 500 }}>Project management is ready for the next step.</h2>
-        <p style={{ margin: 0, maxWidth: 700, lineHeight: 1.7, opacity: .7 }}>
-          The secure admin shell is connected to Supabase. Next we add create, edit, publish and delete controls for portfolio projects, then image uploads.
+        <p style={{ margin: "0 0 10px", fontSize: 12, letterSpacing: ".16em", textTransform: "uppercase", opacity: .5 }}>Portfolio CMS</p>
+        <h2 style={{ margin: "0 0 12px", fontSize: 26, fontWeight: 500 }}>Project management is live.</h2>
+        <p style={{ margin: "0 0 20px", maxWidth: 700, lineHeight: 1.7, opacity: .7 }}>
+          Create portfolio entries, keep them as drafts, publish them, edit details and remove projects from one protected workspace.
         </p>
+        <Link href="/admin/projects" style={{ display: "inline-block", background: "white", color: "black", padding: "12px 18px", borderRadius: 999, textDecoration: "none", fontWeight: 600 }}>
+          Manage projects →
+        </Link>
       </section>
     </main>
   );
