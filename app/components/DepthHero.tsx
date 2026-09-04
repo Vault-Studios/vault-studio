@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CSSProperties, useEffect, useRef, useState } from "react";
+import { CSSProperties, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { Locale } from "../../lib/i18n";
 import { dictionaries, localizedPath } from "../../lib/i18n";
 
@@ -42,6 +42,20 @@ function sceneOpacity(progress: number, start: number, end: number) {
   );
 }
 
+function subscribeReducedMotion(callback: () => void) {
+  const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+  media.addEventListener("change", callback);
+  return () => media.removeEventListener("change", callback);
+}
+
+function getReducedMotionSnapshot() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function getReducedMotionServerSnapshot() {
+  return false;
+}
+
 export default function DepthHero({ locale }: { locale: Locale }) {
   const dictionary = dictionaries[locale];
   const { hero, nav } = dictionary;
@@ -51,15 +65,23 @@ export default function DepthHero({ locale }: { locale: Locale }) {
   const animationRef = useRef(0);
   const reducedRef = useRef(false);
   const [progress, setProgress] = useState(0);
-  const [reducedMotion, setReducedMotion] = useState(false);
+  const reducedMotion = useSyncExternalStore(
+    subscribeReducedMotion,
+    getReducedMotionSnapshot,
+    getReducedMotionServerSnapshot
+  );
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const reduced = window.matchMedia(
+    reducedRef.current = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
-    reducedRef.current = reduced;
-    setReducedMotion(reduced);
+
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const syncReducedMotion = () => {
+      reducedRef.current = media.matches;
+    };
+    media.addEventListener("change", syncReducedMotion);
 
     const measure = () => {
       const section = sectionRef.current;
@@ -94,11 +116,12 @@ export default function DepthHero({ locale }: { locale: Locale }) {
 
     targetRef.current = measure();
     currentRef.current = targetRef.current;
-    setProgress(currentRef.current);
+    animationRef.current = window.requestAnimationFrame(animate);
     window.addEventListener("scroll", update, { passive: true });
     window.addEventListener("resize", update);
 
     return () => {
+      media.removeEventListener("change", syncReducedMotion);
       window.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
       if (animationRef.current) {
