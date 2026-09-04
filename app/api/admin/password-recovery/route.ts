@@ -19,6 +19,8 @@ export async function POST(request: Request) {
     method: "POST",
     headers: {
       apikey: key,
+      Authorization: `Bearer ${key}`,
+      Accept: "application/json",
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ email }),
