@@ -26,6 +26,13 @@ export async function POST(request: Request) {
   });
 
   if (!response.ok) {
+    const responseText = await response.text().catch(() => "");
+    console.error("Supabase password recovery failed", {
+      status: response.status,
+      statusText: response.statusText,
+      body: responseText.slice(0, 1000),
+    });
+
     return NextResponse.json({ error: "Unable to send recovery email right now." }, { status: 502 });
   }
 
