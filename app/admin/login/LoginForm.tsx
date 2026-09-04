@@ -41,6 +41,9 @@ export default function LoginForm() {
         <span style={{ fontSize: 12, letterSpacing: ".14em", textTransform: "uppercase" }}>Password</span>
         <input name="password" type="password" autoComplete="current-password" required style={inputStyle} />
       </label>
+      <a href="/admin/forgot-password" style={{ color: "white", opacity: .72, fontSize: 14, justifySelf: "end" }}>
+        Forgot password?
+      </a>
       {error ? <p style={{ margin: 0, color: "#ff8b8b", fontSize: 14 }}>{error}</p> : null}
       <button disabled={loading} type="submit" style={buttonStyle}>
         {loading ? "Signing in…" : "Enter Vault Admin"}
