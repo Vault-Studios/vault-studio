@@ -1,5 +1,5 @@
-import { getAdminSession } from "../../../../../../../lib/admin-auth";
-import { getSupabasePublicConfig } from "../../../../../../../lib/supabase";
+import { getAdminSession } from "../../../../../../lib/admin-auth";
+import { getSupabasePublicConfig } from "../../../../../../lib/supabase";
 
 const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
 const maxBytes = 12 * 1024 * 1024;
