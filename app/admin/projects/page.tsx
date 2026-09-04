@@ -3,6 +3,18 @@ import { redirect } from "next/navigation";
 import { getAdminSession } from "../../../lib/admin-auth";
 import { getSupabasePublicConfig } from "../../../lib/supabase";
 
+type ProjectListItem = {
+  id: string;
+  title: string;
+  slug: string;
+  client_name: string;
+  category: string;
+  location: string;
+  project_date: string | null;
+  is_published: boolean;
+  created_at: string;
+};
+
 async function loadProjects(accessToken: string) {
   const { url, key } = getSupabasePublicConfig();
   const response = await fetch(`${url}/rest/v1/projects?select=id,title,slug,client_name,category,location,project_date,is_published,created_at&order=created_at.desc`, {
@@ -10,7 +22,7 @@ async function loadProjects(accessToken: string) {
     cache: "no-store",
   });
   if (!response.ok) return [];
-  return await response.json() as Array<any>;
+  return await response.json() as ProjectListItem[];
 }
 
 export default async function ProjectsPage() {
