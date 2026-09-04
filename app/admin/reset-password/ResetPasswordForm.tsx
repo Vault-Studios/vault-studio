@@ -1,24 +1,29 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState, useSyncExternalStore } from "react";
+
+function subscribeToHashChange(callback: () => void) {
+  window.addEventListener("hashchange", callback);
+  return () => window.removeEventListener("hashchange", callback);
+}
+
+function getRecoveryHash() {
+  return window.location.hash;
+}
 
 export default function ResetPasswordForm() {
-  const [accessToken, setAccessToken] = useState("");
-  const [ready, setReady] = useState(false);
+  const recoveryHash = useSyncExternalStore(
+    subscribeToHashChange,
+    getRecoveryHash,
+    () => null
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.hash.replace(/^#/, ""));
-    const token = params.get("access_token") || "";
-    const type = params.get("type");
-
-    if (token && (!type || type === "recovery")) {
-      setAccessToken(token);
-    }
-    setReady(true);
-  }, []);
+  const params = new URLSearchParams((recoveryHash ?? "").replace(/^#/, ""));
+  const type = params.get("type");
+  const accessToken = !type || type === "recovery" ? params.get("access_token") || "" : "";
+  const ready = recoveryHash !== null;
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

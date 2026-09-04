@@ -160,7 +160,7 @@ export default function DepthHero({ locale }: { locale: Locale }) {
               alt="Vault"
             />
           </Link>
-          <nav aria-label="Main navigation">
+          <nav className="desktopNav" aria-label="Main navigation">
             <Link href="#work">{nav.work}</Link>
             <Link href="#reviews">{nav.reviews}</Link>
             <Link href="#services">{nav.services}</Link>

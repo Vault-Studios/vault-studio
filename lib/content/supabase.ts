@@ -27,7 +27,7 @@ export async function supabaseProjects(locale: Locale): Promise<Project[]> {
   const projectResponse = await fetch(
     `${url}/rest/v1/projects?is_published=eq.true&select=id,slug,title,client_name,category,location,project_date,summary,description,cover_image_url&order=project_date.desc.nullslast,created_at.desc`,
     {
-      headers: { apikey: key, Authorization: `Bearer ${key}` },
+      headers: { apikey: key },
       cache: "no-store",
     }
   );
@@ -40,7 +40,7 @@ export async function supabaseProjects(locale: Locale): Promise<Project[]> {
   const imageResponse = await fetch(
     `${url}/rest/v1/project_images?project_id=in.(${ids})&select=project_id,image_url,alt_text,sort_order&order=sort_order.asc,created_at.asc`,
     {
-      headers: { apikey: key, Authorization: `Bearer ${key}` },
+      headers: { apikey: key },
       cache: "no-store",
     }
   );

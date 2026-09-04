@@ -2,8 +2,8 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "vault-studio",
   "account_id": "5ba268f03b318f886a5da5e6b24d662a",
-  "compatibility_date": "2026-09-04",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_date": "2026-05-22",
+  "compatibility_flags": ["nodejs_compat", "nodejs_compat_populate_process_env"],
   "main": "./worker/index.ts",
   "preview_urls": true,
   "assets": {
