@@ -4,6 +4,7 @@ import { getAdminSession } from "../../../../lib/admin-auth";
 import { getSupabasePublicConfig } from "../../../../lib/supabase";
 import ProjectForm from "../ProjectForm";
 import DeleteProjectButton from "./DeleteProjectButton";
+import ProjectImages from "./ProjectImages";
 
 async function loadProject(id: string, accessToken: string) {
   const { url, key } = getSupabasePublicConfig();
@@ -16,11 +17,24 @@ async function loadProject(id: string, accessToken: string) {
   return rows[0] ?? null;
 }
 
+async function loadImages(id: string, accessToken: string) {
+  const { url, key } = getSupabasePublicConfig();
+  const response = await fetch(`${url}/rest/v1/project_images?project_id=eq.${encodeURIComponent(id)}&select=id,image_url,alt_text,sort_order&order=sort_order.asc,created_at.asc`, {
+    headers: { apikey: key, Authorization: `Bearer ${accessToken}` },
+    cache: "no-store",
+  });
+  if (!response.ok) return [];
+  return await response.json() as Array<{ id: string; image_url: string; alt_text: string; sort_order: number }>;
+}
+
 export default async function EditProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getAdminSession();
   if (!session) redirect("/admin/login");
   const { id } = await params;
-  const project = await loadProject(id, session.accessToken);
+  const [project, images] = await Promise.all([
+    loadProject(id, session.accessToken),
+    loadImages(id, session.accessToken),
+  ]);
   if (!project) notFound();
 
   return (
@@ -31,6 +45,7 @@ export default async function EditProjectPage({ params }: { params: Promise<{ id
         <h1 style={{ margin: 0, fontSize: "clamp(32px,5vw,52px)", fontWeight: 500 }}>Edit project</h1>
       </div>
       <ProjectForm project={project} />
+      <ProjectImages projectId={project.id} images={images} />
       <DeleteProjectButton id={project.id} />
     </main>
   );
