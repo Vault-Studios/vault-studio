@@ -6,6 +6,22 @@ import ProjectForm from "../ProjectForm";
 import DeleteProjectButton from "./DeleteProjectButton";
 import ProjectImages from "./ProjectImages";
 
+type ProjectRecord = {
+  id: string;
+  slug: string;
+  title: string;
+  client_name: string;
+  category: string;
+  location: string;
+  project_date: string | null;
+  summary: string;
+  description: string;
+  cover_image_url: string | null;
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 async function loadProject(id: string, accessToken: string) {
   const { url, key } = getSupabasePublicConfig();
   const response = await fetch(`${url}/rest/v1/projects?id=eq.${encodeURIComponent(id)}&select=*&limit=1`, {
@@ -13,7 +29,7 @@ async function loadProject(id: string, accessToken: string) {
     cache: "no-store",
   });
   if (!response.ok) return null;
-  const rows = await response.json() as Array<any>;
+  const rows = await response.json() as ProjectRecord[];
   return rows[0] ?? null;
 }
 
