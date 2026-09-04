@@ -13,10 +13,12 @@ const env = {
   WRANGLER_LOG_PATH: ".wrangler/wrangler.log",
 };
 
-const bin = process.platform === "win32" ? "npx.cmd" : "npx";
+const isWindows = process.platform === "win32";
+const bin = isWindows ? "npx" : "npx";
 const child = spawn(bin, ["vinext", command], {
   stdio: "inherit",
   env,
+  shell: isWindows,
 });
 
 child.on("error", (error) => {
