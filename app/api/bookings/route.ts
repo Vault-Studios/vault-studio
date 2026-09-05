@@ -1,4 +1,3 @@
-import { env } from "cloudflare:workers";
 import { supabaseRest } from "../../../lib/supabase";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -57,10 +56,17 @@ export async function POST(request: Request) {
       method: "POST",
       headers: { "Content-Type": "application/json", Prefer: "return=minimal" },
       body: JSON.stringify({
-        id: booking.id, name: booking.name, company: booking.company,
-        email: booking.email, phone: booking.phone, service: booking.service,
-        preferred_date: booking.preferredDate || null, location: booking.location,
-        brief: booking.brief, status: "new",
+        id: booking.id,
+        name: booking.name,
+        company: booking.company,
+        email: booking.email,
+        phone: booking.phone,
+        service: booking.service,
+        preferred_date: booking.preferredDate || null,
+        budget: booking.budget,
+        location: booking.location,
+        brief: booking.brief,
+        status: "new",
       }),
     });
 
@@ -68,54 +74,13 @@ export async function POST(request: Request) {
       return Response.json({ reference: `VLT-${booking.id.slice(0, 8).toUpperCase()}` }, { status: 201 });
     }
 
-    console.warn("Supabase booking storage unavailable; using D1 fallback", await supabaseResponse.text());
-    if (!env.DB) throw new Error("Booking storage is not available.");
-
-    await env.DB.batch([
-      env.DB.prepare(`
-        CREATE TABLE IF NOT EXISTS bookings (
-          id TEXT PRIMARY KEY,
-          name TEXT NOT NULL,
-          company TEXT NOT NULL DEFAULT '',
-          email TEXT NOT NULL,
-          phone TEXT NOT NULL DEFAULT '',
-          service TEXT NOT NULL,
-          preferred_date TEXT NOT NULL DEFAULT '',
-          budget TEXT NOT NULL DEFAULT '',
-          location TEXT NOT NULL DEFAULT '',
-          brief TEXT NOT NULL,
-          status TEXT NOT NULL DEFAULT 'new',
-          created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        )
-      `),
-      env.DB.prepare(
-        "CREATE INDEX IF NOT EXISTS bookings_created_at_idx ON bookings (created_at)"
-      ),
-    ]);
-
-    await env.DB.prepare(`
-      INSERT INTO bookings (
-        id, name, company, email, phone, service, preferred_date,
-        budget, location, brief
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `)
-      .bind(
-        booking.id,
-        booking.name,
-        booking.company,
-        booking.email,
-        booking.phone,
-        booking.service,
-        booking.preferredDate,
-        booking.budget,
-        booking.location,
-        booking.brief
-      )
-      .run();
-
+    console.error("Supabase booking storage failed", {
+      status: supabaseResponse.status,
+      statusText: supabaseResponse.statusText,
+    });
     return Response.json(
-      { reference: `VLT-${booking.id.slice(0, 8).toUpperCase()}` },
-      { status: 201 }
+      { error: "We could not save your brief. Please try again shortly." },
+      { status: 502 }
     );
   } catch (error) {
     console.error("Booking request failed", error);

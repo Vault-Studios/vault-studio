@@ -427,7 +427,7 @@ const localeText = (english, swahili) => currentLocale === "sw" ? swahili : engl
 languageToggle.addEventListener("click", () => applyLocale(currentLocale === "en" ? "sw" : "en"));
 
 const supabaseUrl = "https://hxqsnztxokfemmysyjyw.supabase.co";
-const supabaseKey = "sb_publishable_eu-_vai9eG2R89we1eIlxw_Quzds9c9";
+const supabaseKey = "";
 const bookingSubmitApi = `${supabaseUrl}/rest/v1/booking_submissions`;
 const availabilityReadApi =
   `${supabaseUrl}/rest/v1/availability_status?id=eq.studio&select=status,message_en,message_sw,next_available_date&limit=1`;
@@ -547,7 +547,6 @@ document.querySelector("#booking-form").addEventListener("submit", async (event)
       method: "POST",
       headers: {
         apikey: supabaseKey,
-        Authorization: `Bearer ${supabaseKey}`,
         "Content-Type": "application/json",
         Prefer: "return=minimal",
       },
