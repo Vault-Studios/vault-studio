@@ -1967,7 +1967,10 @@ textarea {
 
 @media (max-width: 640px) {
   .shell { width: calc(100% - 30px); }
-  .nav { grid-template-columns: minmax(0, 1fr) auto auto; padding-block: 20px; }
+  .nav { display: flex; gap: 10px; padding-block: 20px; }
+  .nav .brand { margin-right: auto; }
+  .nav .menuToggle,
+  .nav .languageSwitch { display: grid; flex: 0 0 auto; }
   .availability { display: none; }
   .hero h1 { font-size: clamp(3rem, 14vw, 5rem); }
   .depthHero { height: 240vh; }
