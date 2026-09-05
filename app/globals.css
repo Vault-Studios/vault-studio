@@ -1967,9 +1967,8 @@ textarea {
 
 @media (max-width: 640px) {
   .shell { width: calc(100% - 30px); }
-  .nav { padding-block: 20px; }
-  .availability { padding: 9px 11px; font-size: 0; }
-  .availability::after { content: "Available"; font-size: .58rem; }
+  .nav { grid-template-columns: minmax(0, 1fr) auto auto; padding-block: 20px; }
+  .availability { display: none; }
   .hero h1 { font-size: clamp(3rem, 14vw, 5rem); }
   .depthHero { height: 240vh; }
   .depthIntro { top: 47%; }

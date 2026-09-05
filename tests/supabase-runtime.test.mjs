@@ -46,6 +46,7 @@ test("responsive navigation has exclusive desktop and mobile modes", async () =>
   assert.match(hero, /className=\{`mobileMenu/);
   assert.match(css, /@media \(min-width: 981px\)[\s\S]*\.nav \.mobileMenu\.isOpen \{ display: none; \}/);
   assert.match(css, /@media \(max-width: 980px\)[\s\S]*\.nav \.desktopNav \{ display: none; \}/);
+  assert.match(css, /@media \(max-width: 640px\)[\s\S]*\.availability \{ display: none; \}/);
 });
 
 test("recovery sessions that land on the homepage reach the password form", async () => {
