@@ -47,3 +47,14 @@ test("responsive navigation has exclusive desktop and mobile modes", async () =>
   assert.match(css, /@media \(min-width: 981px\)[\s\S]*\.nav \.mobileMenu\.isOpen \{ display: none; \}/);
   assert.match(css, /@media \(max-width: 980px\)[\s\S]*\.nav \.desktopNav \{ display: none; \}/);
 });
+
+test("recovery sessions that land on the homepage reach the password form", async () => {
+  const [layout, recoveryRedirect] = await Promise.all([
+    readFile(new URL("app/layout.tsx", root), "utf8"),
+    readFile(new URL("app/components/RecoveryRedirect.tsx", root), "utf8"),
+  ]);
+
+  assert.match(layout, /<RecoveryRedirect \/>/);
+  assert.match(recoveryRedirect, /params\.get\("type"\) !== "recovery"/);
+  assert.match(recoveryRedirect, /window\.location\.replace\(`\/admin\/reset-password\$\{hash\}`\)/);
+});
