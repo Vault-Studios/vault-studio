@@ -62,8 +62,6 @@ Local verification target: create one draft gallery, upload one small JPEG, acti
 
 Do not merge this feature branch into `main` until the gallery client session/viewer and selection workflow have passed production smoke testing.
 
-Branch head after this checkpoint should be pushed before beginning the client-facing access implementation.
-
 Security note: activation alone does not grant anonymous database or Storage access; the upcoming application session remains the only intended client gateway.
 
 Current checkpoint commit includes no plaintext PIN fixture or private client image data.
@@ -97,5 +95,3 @@ If the upload succeeds, verify its metadata appears in the gallery workspace bef
 Do not use real client photographs during this first verification pass.
 
 After activation, the client URL is intentionally not functional yet; that is the next implementation slice.
-
-Checkpoint head: `7ef0914` (before branch-ref update).
