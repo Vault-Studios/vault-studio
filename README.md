@@ -30,6 +30,18 @@ CMS field instructions live in `cms/sanity/README.md`. A clean, provider-ready f
 
 Reviews remain private in `review_submissions` until their status is changed to `approved`. Bookings enter with `new` status. Availability is controlled by the single `availability_status` row with id `studio`.
 
+### Cloudflare runtime configuration
+
+Set `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` as encrypted bindings on the
+deployed Worker. The explicit `nodejs_compat_populate_process_env` compatibility
+flag makes those bindings available to the Vinext server bundle at request time; no
+Supabase credentials are committed or bundled as fallbacks. Keep the
+publishable key paired with RLS and never substitute a service-role key.
+
+After deployment, `GET /api/health/supabase` performs a read-only connection
+check and returns only safe metadata (configuration state, hostname, project
+reference, key type, and upstream status). It never returns the key.
+
 ## Update the studio status
 
 Open Supabase → **Table Editor** → `availability_status` and edit the `studio` row. The public site reads this row automatically; no redeployment is needed.

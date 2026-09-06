@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CSSProperties, useEffect, useRef, useState } from "react";
+import { CSSProperties, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { Locale } from "../../lib/i18n";
 import { dictionaries, localizedPath } from "../../lib/i18n";
 
@@ -42,6 +42,20 @@ function sceneOpacity(progress: number, start: number, end: number) {
   );
 }
 
+function subscribeReducedMotion(callback: () => void) {
+  const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+  media.addEventListener("change", callback);
+  return () => media.removeEventListener("change", callback);
+}
+
+function getReducedMotionSnapshot() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function getReducedMotionServerSnapshot() {
+  return false;
+}
+
 export default function DepthHero({ locale }: { locale: Locale }) {
   const dictionary = dictionaries[locale];
   const { hero, nav } = dictionary;
@@ -51,12 +65,23 @@ export default function DepthHero({ locale }: { locale: Locale }) {
   const animationRef = useRef(0);
   const reducedRef = useRef(false);
   const [progress, setProgress] = useState(0);
+  const reducedMotion = useSyncExternalStore(
+    subscribeReducedMotion,
+    getReducedMotionSnapshot,
+    getReducedMotionServerSnapshot
+  );
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     reducedRef.current = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
+
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const syncReducedMotion = () => {
+      reducedRef.current = media.matches;
+    };
+    media.addEventListener("change", syncReducedMotion);
 
     const measure = () => {
       const section = sectionRef.current;
@@ -91,11 +116,12 @@ export default function DepthHero({ locale }: { locale: Locale }) {
 
     targetRef.current = measure();
     currentRef.current = targetRef.current;
-    setProgress(currentRef.current);
+    animationRef.current = window.requestAnimationFrame(animate);
     window.addEventListener("scroll", update, { passive: true });
     window.addEventListener("resize", update);
 
     return () => {
+      media.removeEventListener("change", syncReducedMotion);
       window.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
       if (animationRef.current) {
@@ -107,7 +133,7 @@ export default function DepthHero({ locale }: { locale: Locale }) {
   const x = interpolate(progress, [30, 19, 26, 0, -25, 0, 0]);
   const y = interpolate(progress, [64, 6, -4, 0, 5, 0, -8]);
   const scale = interpolate(progress, [0.52, 0.76, 0.9, 2.45, 0.78, 1.5, 2.65]);
-  const rotate = reducedRef.current
+  const rotate = reducedMotion
     ? 0
     : interpolate(progress, [-13, -4, 7, 0, -7, 2, 0]);
   const radius = interpolate(progress, [44, 36, 28, 2, 34, 18, 0]);
@@ -134,7 +160,7 @@ export default function DepthHero({ locale }: { locale: Locale }) {
               alt="Vault"
             />
           </Link>
-          <nav aria-label="Main navigation">
+          <nav className="desktopNav" aria-label="Main navigation">
             <Link href="#work">{nav.work}</Link>
             <Link href="#reviews">{nav.reviews}</Link>
             <Link href="#services">{nav.services}</Link>

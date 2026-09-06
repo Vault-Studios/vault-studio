@@ -1,14 +1,18 @@
 // Copy this schema into a Sanity Studio's schemaTypes folder.
+type ValidationRule = {
+  required: () => ValidationRule;
+};
+
 export const project = {
   name: "project",
   title: "Project",
   type: "document",
   fields: [
-    { name: "title", type: "string", validation: (rule: any) => rule.required() },
-    { name: "slug", type: "slug", options: { source: "title" }, validation: (rule: any) => rule.required() },
-    { name: "language", type: "string", options: { list: [{ title: "English", value: "en" }, { title: "Kiswahili", value: "sw" }] }, validation: (rule: any) => rule.required() },
+    { name: "title", type: "string", validation: (rule: ValidationRule) => rule.required() },
+    { name: "slug", type: "slug", options: { source: "title" }, validation: (rule: ValidationRule) => rule.required() },
+    { name: "language", type: "string", options: { list: [{ title: "English", value: "en" }, { title: "Kiswahili", value: "sw" }] }, validation: (rule: ValidationRule) => rule.required() },
     { name: "featuredOrder", type: "number", initialValue: 10 },
-    { name: "client", type: "string", validation: (rule: any) => rule.required() },
+    { name: "client", type: "string", validation: (rule: ValidationRule) => rule.required() },
     { name: "category", type: "string" },
     { name: "year", type: "string" },
     { name: "summary", type: "text", rows: 4 },

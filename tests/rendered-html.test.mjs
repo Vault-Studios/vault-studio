@@ -20,16 +20,15 @@ test("the finished Vault experience replaces the starter preview", async () => {
   );
 });
 
-test("booking requests use durable D1 storage", async () => {
-  const [route, hosting, migration] = await Promise.all([
+test("booking requests use Supabase storage protected by RLS", async () => {
+  const [route, schema] = await Promise.all([
     readFile(new URL("app/api/bookings/route.ts", root), "utf8"),
-    readFile(new URL(".openai/hosting.json", root), "utf8"),
-    readFile(new URL("drizzle/0000_calm_storm.sql", root), "utf8"),
+    readFile(new URL("supabase/booking_submissions.sql", root), "utf8"),
   ]);
 
-  assert.match(route, /INSERT INTO bookings/);
-  assert.equal(JSON.parse(hosting).d1, "DB");
-  assert.match(migration, /CREATE TABLE `bookings`/);
+  assert.match(route, /supabaseRest\("booking_submissions"/);
+  assert.match(schema, /enable row level security/i);
+  assert.match(schema, /grant insert .* anon, authenticated/i);
 });
 
 test("premium integrations keep safe fallbacks", async () => {
@@ -41,7 +40,7 @@ test("premium integrations keep safe fallbacks", async () => {
     readFile(new URL("templates/premium-portfolio-skeleton/README.md", root), "utf8"),
   ]);
 
-  assert.match(content, /sanityProjects/);
+  assert.match(content, /supabaseProjects/);
   assert.match(content, /localProjects/);
   assert.match(reviews, /review_submissions/);
   assert.match(swahili, /locale="sw"/);

@@ -5,6 +5,8 @@ import handler from "vinext/server/app-router-entry";
 interface Env {
   ASSETS: Fetcher;
   DB: D1Database;
+  SUPABASE_URL?: string;
+  SUPABASE_PUBLISHABLE_KEY?: string;
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {
@@ -19,6 +21,17 @@ interface ExecutionContext {
   passThroughOnException(): void;
 }
 
+function exposeSupabaseBindingsToVinext(env: Env) {
+  // Vinext server modules use Node-style environment access. Bridge the
+  // request-scoped Worker bindings before the app router handles the request.
+  if (typeof env.SUPABASE_URL === "string") {
+    process.env.SUPABASE_URL = env.SUPABASE_URL;
+  }
+  if (typeof env.SUPABASE_PUBLISHABLE_KEY === "string") {
+    process.env.SUPABASE_PUBLISHABLE_KEY = env.SUPABASE_PUBLISHABLE_KEY;
+  }
+}
+
 // Image security config. SVG sources with .svg extension auto-skip the
 // optimization endpoint on the client side (served directly, no proxy).
 // To route SVGs through the optimizer (with security headers), set
@@ -27,6 +40,7 @@ interface ExecutionContext {
 
 const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    exposeSupabaseBindingsToVinext(env);
     const url = new URL(request.url);
 
     if (url.pathname === "/_vinext/image") {
