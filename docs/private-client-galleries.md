@@ -107,3 +107,5 @@ Report any build error verbatim before changing the gallery security model.
 Once verified, the next slice will add the PIN/session gateway without granting anonymous Supabase table access.
 
 Use the feature branch for all verification fixes.
+
+No further repository changes are needed before the smoke test.
