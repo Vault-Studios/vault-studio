@@ -63,3 +63,5 @@ Local verification target: create one draft gallery, upload one small JPEG, acti
 Do not merge this feature branch into `main` until the gallery client session/viewer and selection workflow have passed production smoke testing.
 
 Branch head after this checkpoint should be pushed before beginning the client-facing access implementation.
+
+Security note: activation alone does not grant anonymous database or Storage access; the upcoming application session remains the only intended client gateway.
