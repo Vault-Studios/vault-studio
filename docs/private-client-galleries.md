@@ -65,3 +65,5 @@ Do not merge this feature branch into `main` until the gallery client session/vi
 Branch head after this checkpoint should be pushed before beginning the client-facing access implementation.
 
 Security note: activation alone does not grant anonymous database or Storage access; the upcoming application session remains the only intended client gateway.
+
+Current checkpoint commit includes no plaintext PIN fixture or private client image data.
