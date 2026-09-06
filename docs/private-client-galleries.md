@@ -69,3 +69,5 @@ Security note: activation alone does not grant anonymous database or Storage acc
 Current checkpoint commit includes no plaintext PIN fixture or private client image data.
 
 After local verification, continue on this same feature branch rather than modifying the stable `main` release.
+
+Expected local entry point after checkout: `http://localhost:3000/admin/galleries`.
