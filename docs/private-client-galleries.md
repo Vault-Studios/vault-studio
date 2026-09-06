@@ -97,3 +97,5 @@ If the upload succeeds, verify its metadata appears in the gallery workspace bef
 Do not use real client photographs during this first verification pass.
 
 After activation, the client URL is intentionally not functional yet; that is the next implementation slice.
+
+Checkpoint head: `7ef0914` (before branch-ref update).
