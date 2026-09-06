@@ -11,24 +11,38 @@ export default function LoginForm() {
     setLoading(true);
     setError("");
 
-    const form = new FormData(event.currentTarget);
-    const response = await fetch("/api/admin/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: form.get("email"),
-        password: form.get("password"),
-      }),
-    });
+    try {
+      const form = new FormData(event.currentTarget);
+      const response = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: form.get("email"),
+          password: form.get("password"),
+        }),
+      });
 
-    const data = (await response.json()) as { error?: string };
-    if (!response.ok) {
-      setError(data.error || "Unable to sign in.");
+      const text = await response.text();
+      let data: { error?: string } = {};
+      if (text) {
+        try {
+          data = JSON.parse(text) as { error?: string };
+        } catch {
+          data = {};
+        }
+      }
+
+      if (!response.ok) {
+        setError(data.error || `Unable to sign in (${response.status}).`);
+        return;
+      }
+
+      window.location.assign("/admin");
+    } catch {
+      setError("Unable to reach the admin login service. Please try again.");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    window.location.assign("/admin");
   }
 
   return (
