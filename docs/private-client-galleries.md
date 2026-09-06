@@ -98,4 +98,4 @@ After activation, the client URL is intentionally not functional yet; that is th
 
 The stable Studio Pro production deployment remains unchanged.
 
-This is the admin-foundation checkpoint for Phase 2.
+This is the admin-foundation checkpoint for Phase 2. Proceed to the client session/viewer only after local verification passes.
