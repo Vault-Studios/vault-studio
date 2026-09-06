@@ -73,3 +73,5 @@ After local verification, continue on this same feature branch rather than modif
 Expected local entry point after checkout: `http://localhost:3000/admin/galleries`.
 
 Run the repository build/tests before treating this checkpoint as verified; these GitHub-side commits have not executed your local Vinext toolchain.
+
+If the build reveals Vinext/Cloudflare compatibility issues, fix them on the feature branch before deploying any gallery code.
