@@ -93,3 +93,5 @@ No deployment was performed as part of this checkpoint.
 Recommended verification command order: `git pull`, `npm run build`, `npm test`, then `npm run dev`.
 
 If the upload succeeds, verify its metadata appears in the gallery workspace before activating the gallery.
+
+Do not use real client photographs during this first verification pass.
