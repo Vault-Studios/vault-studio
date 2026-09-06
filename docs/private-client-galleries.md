@@ -71,3 +71,5 @@ Current checkpoint commit includes no plaintext PIN fixture or private client im
 After local verification, continue on this same feature branch rather than modifying the stable `main` release.
 
 Expected local entry point after checkout: `http://localhost:3000/admin/galleries`.
+
+Run the repository build/tests before treating this checkpoint as verified; these GitHub-side commits have not executed your local Vinext toolchain.
