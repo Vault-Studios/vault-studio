@@ -1,7 +1,15 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import RecoveryRedirect from "./components/RecoveryRedirect";
 import "./globals.css";
+
+const recoveryRedirectScript = `
+  (() => {
+    if (location.pathname === "/admin/reset-password" || !location.hash) return;
+    const params = new URLSearchParams(location.hash.slice(1));
+    if (params.get("type") !== "recovery") return;
+    location.replace("/admin/reset-password" + location.hash);
+  })();
+`;
 
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();
@@ -58,7 +66,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <RecoveryRedirect />
+        <script dangerouslySetInnerHTML={{ __html: recoveryRedirectScript }} />
         {children}
       </body>
     </html>

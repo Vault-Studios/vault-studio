@@ -50,12 +50,9 @@ test("responsive navigation has exclusive desktop and mobile modes", async () =>
 });
 
 test("recovery sessions that land on the homepage reach the password form", async () => {
-  const [layout, recoveryRedirect] = await Promise.all([
-    readFile(new URL("app/layout.tsx", root), "utf8"),
-    readFile(new URL("app/components/RecoveryRedirect.tsx", root), "utf8"),
-  ]);
+  const layout = await readFile(new URL("app/layout.tsx", root), "utf8");
 
-  assert.match(layout, /<RecoveryRedirect \/>/);
-  assert.match(recoveryRedirect, /params\.get\("type"\) !== "recovery"/);
-  assert.match(recoveryRedirect, /window\.location\.replace\(`\/admin\/reset-password\$\{hash\}`\)/);
+  assert.match(layout, /params\.get\("type"\) !== "recovery"/);
+  assert.match(layout, /location\.replace\("\/admin\/reset-password" \+ location\.hash\)/);
+  assert.match(layout, /dangerouslySetInnerHTML=\{\{ __html: recoveryRedirectScript \}\}/);
 });
