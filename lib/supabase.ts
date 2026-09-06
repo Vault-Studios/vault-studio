@@ -14,7 +14,7 @@ export function getSupabasePublicConfig() {
 
   if (!configuredUrl || !key) {
     throw new Error(
-      "Supabase runtime configuration is missing. Set SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY as Worker secrets."
+      "Supabase runtime configuration is missing. Set SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY in .env.local for local development or as encrypted Worker secrets in production."
     );
   }
 

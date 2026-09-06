@@ -5,11 +5,13 @@ import test from "node:test";
 const root = new URL("../", import.meta.url);
 
 test("Supabase uses runtime bindings without committed credentials", async () => {
-  const [helper, worker, wranglerConfig, exampleEnv] = await Promise.all([
+  const [helper, worker, wranglerConfig, exampleEnv, readme, gitignore] = await Promise.all([
     readFile(new URL("lib/supabase.ts", root), "utf8"),
     readFile(new URL("worker/index.ts", root), "utf8"),
     readFile(new URL("wrangler.jsonc", root), "utf8"),
     readFile(new URL(".env.example", root), "utf8"),
+    readFile(new URL("README.md", root), "utf8"),
+    readFile(new URL(".gitignore", root), "utf8"),
   ]);
 
   assert.match(helper, /process\.env\[name\]/);
@@ -20,6 +22,10 @@ test("Supabase uses runtime bindings without committed credentials", async () =>
   assert.doesNotMatch(helper, /sb_publishable_[A-Za-z0-9_-]{20,}/);
   assert.match(wranglerConfig, /nodejs_compat_populate_process_env/);
   assert.match(exampleEnv, /sb_publishable_YOUR_KEY/);
+  assert.match(readme, /Vinext 0\.0\.50 automatically loads `\.env\.local`/);
+  assert.match(readme, /encrypted (?:Worker )?bindings/);
+  assert.match(gitignore, /^\.env\*/m);
+  assert.match(gitignore, /^!\.env\.example/m);
 });
 
 test("anonymous Supabase requests do not manufacture a user session", async () => {

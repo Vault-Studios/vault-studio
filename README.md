@@ -11,7 +11,16 @@ Premium photography and film portfolio for Vault, built with a cinematic scrolly
 
 ## Configure
 
-Copy `.env.example` to `.env.local` and fill in the services being used. Public Supabase credentials are protected by the SQL row-level security policies; never place a service-role key in this project.
+Copy `.env.example` to `.env.local` and fill in the services being used. Vinext 0.0.50 automatically loads `.env.local` for `npm run dev`, so no per-terminal environment commands are needed. The file is covered by `.env*` in `.gitignore`; verify it remains untracked before committing. Public Supabase credentials are protected by the SQL row-level security policies; never place a secret or service-role key in this project.
+
+For Supabase, use the project HTTPS URL and its `sb_publishable_...` key:
+
+```dotenv
+SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+SUPABASE_PUBLISHABLE_KEY=sb_publishable_YOUR_KEY
+```
+
+Do not use `.dev.vars` for this Vinext setup. Vinext's Next-compatible server environment loader reads `.env.local` before Vite creates the RSC/SSR environments. Cloudflare's Vite plugin may also read Wrangler development-variable files, but maintaining two local secret files creates ambiguous precedence.
 
 ```bash
 npm install
@@ -37,6 +46,10 @@ deployed Worker. The explicit `nodejs_compat_populate_process_env` compatibility
 flag makes those bindings available to the Vinext server bundle at request time; no
 Supabase credentials are committed or bundled as fallbacks. Keep the
 publishable key paired with RLS and never substitute a service-role key.
+
+Local `.env.local` values are development inputs only; they do not replace or
+override the deployed Worker's encrypted bindings. `worker/index.ts` keeps the
+explicit request-time bridge from Worker bindings to Vinext's `process.env`.
 
 After deployment, `GET /api/health/supabase` performs a read-only connection
 check and returns only safe metadata (configuration state, hostname, project
