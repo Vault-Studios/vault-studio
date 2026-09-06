@@ -97,3 +97,5 @@ Do not use real client photographs during this first verification pass.
 After activation, the client URL is intentionally not functional yet; that is the next implementation slice.
 
 The stable Studio Pro production deployment remains unchanged.
+
+This is the admin-foundation checkpoint for Phase 2.
