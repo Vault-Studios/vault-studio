@@ -89,3 +89,5 @@ The Supabase schema migration has already been applied; the checked-in SQL exist
 Next implementation checkpoint begins only after `npm run build` and `npm test` pass locally.
 
 No deployment was performed as part of this checkpoint.
+
+Recommended verification command order: `git pull`, `npm run build`, `npm test`, then `npm run dev`.
