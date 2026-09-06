@@ -103,3 +103,5 @@ This is the admin-foundation checkpoint for Phase 2. Proceed to the client sessi
 The feature branch is expected to remain unmerged throughout this verification.
 
 Report any build error verbatim before changing the gallery security model.
+
+Once verified, the next slice will add the PIN/session gateway without granting anonymous Supabase table access.
