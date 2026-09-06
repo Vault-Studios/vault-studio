@@ -75,3 +75,5 @@ Expected local entry point after checkout: `http://localhost:3000/admin/gallerie
 Run the repository build/tests before treating this checkpoint as verified; these GitHub-side commits have not executed your local Vinext toolchain.
 
 If the build reveals Vinext/Cloudflare compatibility issues, fix them on the feature branch before deploying any gallery code.
+
+Admin image uploads are intentionally direct-to-Storage so large photo binaries do not pass through the Worker request body.
