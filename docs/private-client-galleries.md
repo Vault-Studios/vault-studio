@@ -105,5 +105,3 @@ The feature branch is expected to remain unmerged throughout this verification.
 Report any build error verbatim before changing the gallery security model.
 
 Once verified, the next slice will add the PIN/session gateway without granting anonymous Supabase table access.
-
-Local verification is the only remaining step for this checkpoint.
