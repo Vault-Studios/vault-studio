@@ -87,3 +87,5 @@ Use a disposable gallery and non-sensitive photo for the first smoke test.
 The Supabase schema migration has already been applied; the checked-in SQL exists to keep repository schema history aligned with production.
 
 Next implementation checkpoint begins only after `npm run build` and `npm test` pass locally.
+
+No deployment was performed as part of this checkpoint.
