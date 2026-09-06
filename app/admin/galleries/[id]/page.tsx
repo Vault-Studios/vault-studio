@@ -26,10 +26,13 @@ export default async function GalleryDetailPage({ params }: { params: Promise<{ 
       <section className="adminHero"><div><p className="eyebrow">{gallery.status}</p><h1>{gallery.title}</h1><p>{gallery.client_name} · /gallery/{gallery.slug}</p></div><Link href="/admin/galleries">All galleries</Link></section>
       <section className="adminPanel">
         <div className="adminPanelHeader"><div><p className="eyebrow">Private delivery</p><h2>Gallery workspace</h2></div></div>
-        <dl className="adminDetailGrid">
-          <div><dt>Client</dt><dd>{gallery.client_name}</dd></div><div><dt>Email</dt><dd>{gallery.client_email || "—"}</dd></div><div><dt>Event date</dt><dd>{gallery.event_date || "—"}</dd></div><div><dt>Selection limit</dt><dd>{gallery.selection_limit ?? "Unlimited"}</dd></div><div><dt>Downloads</dt><dd>{gallery.allow_downloads ? "Allowed" : "Disabled"}</dd></div><div><dt>Expires</dt><dd>{gallery.expires_at ? new Date(gallery.expires_at).toLocaleString() : "No expiry"}</dd></div>
-        </dl>
+        <dl className="adminDetailGrid"><div><dt>Client</dt><dd>{gallery.client_name}</dd></div><div><dt>Email</dt><dd>{gallery.client_email || "—"}</dd></div><div><dt>Event date</dt><dd>{gallery.event_date || "—"}</dd></div><div><dt>Selection limit</dt><dd>{gallery.selection_limit ?? "Unlimited"}</dd></div><div><dt>Downloads</dt><dd>{gallery.allow_downloads ? "Allowed" : "Disabled"}</dd></div><div><dt>Expires</dt><dd>{gallery.expires_at ? new Date(gallery.expires_at).toLocaleString() : "No expiry"}</dd></div></dl>
         {gallery.description ? <p>{gallery.description}</p> : null}
+        <div className="adminActions">
+          {gallery.status !== "active" ? <form method="post" action={`/api/admin/galleries/${gallery.id}/status`}><input type="hidden" name="status" value="active"/><button className="adminPrimaryButton" type="submit" disabled={!images.length}>Activate gallery</button></form> : <form method="post" action={`/api/admin/galleries/${gallery.id}/status`}><input type="hidden" name="status" value="draft"/><button type="submit">Return to draft</button></form>}
+          {gallery.status !== "archived" ? <form method="post" action={`/api/admin/galleries/${gallery.id}/status`}><input type="hidden" name="status" value="archived"/><button type="submit">Archive</button></form> : null}
+          {gallery.status === "active" ? <code>/gallery/{gallery.slug}</code> : null}
+        </div>
       </section>
       <section className="adminPanel">
         <div className="adminPanelHeader"><div><p className="eyebrow">Proofs</p><h2>{images.length} photo{images.length === 1 ? "" : "s"}</h2></div></div>
