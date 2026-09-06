@@ -11,13 +11,14 @@ Premium photography and film portfolio for Vault, built with a cinematic scrolly
 
 ## Configure
 
-Copy `.env.example` to `.env.local` and fill in the services being used. Vinext 0.0.50 automatically loads `.env.local` for `npm run dev`, so no per-terminal environment commands are needed. The file is covered by `.env*` in `.gitignore`; verify it remains untracked before committing. Public Supabase credentials are protected by the SQL row-level security policies; never place a secret or service-role key in this project.
+Copy `.env.example` to `.env.local` and fill in the services being used. Vinext 0.0.50 automatically loads `.env.local` for `npm run dev`, so no per-terminal environment commands are needed. The file is covered by `.env*` in `.gitignore`; verify it remains untracked before committing. Public Supabase credentials are protected by the SQL row-level security policies. A server key may be placed only in the ignored `.env.local` file for development or in an encrypted Worker secret—never in committed files or browser-visible variables.
 
 For Supabase, use the project HTTPS URL and its `sb_publishable_...` key:
 
 ```dotenv
 SUPABASE_URL=https://YOUR_PROJECT.supabase.co
 SUPABASE_PUBLISHABLE_KEY=sb_publishable_YOUR_KEY
+SUPABASE_SERVER_KEY=sb_secret_YOUR_SERVER_KEY
 ```
 
 Do not use `.dev.vars` for this Vinext setup. Vinext's Next-compatible server environment loader reads `.env.local` before Vite creates the RSC/SSR environments. Cloudflare's Vite plugin may also read Wrangler development-variable files, but maintaining two local secret files creates ambiguous precedence.
@@ -50,6 +51,20 @@ publishable key paired with RLS and never substitute a service-role key.
 Local `.env.local` values are development inputs only; they do not replace or
 override the deployed Worker's encrypted bindings. `worker/index.ts` keeps the
 explicit request-time bridge from Worker bindings to Vinext's `process.env`.
+
+`SUPABASE_SERVER_KEY` is a separate, server-only Supabase secret key used only
+by `lib/gallery-server.ts` for PIN-protected client galleries. Create a named
+secret key for this gateway in Supabase, place it in ignored `.env.local` for
+development, and add it as an encrypted Cloudflare Worker secret in production.
+It must never use a `NEXT_PUBLIC_` or `VITE_` prefix. Existing admin, booking,
+review, and project routes continue to use the publishable key plus the signed-in
+administrator's JWT and RLS.
+
+Before deploying the private gallery routes, review and apply
+`supabase/migrations/20260906180553_private_client_gallery_sessions.sql` through
+the normal Supabase migration workflow. The migration creates hashed server
+sessions and database-enforced gallery lifecycle/selection limits; it grants no
+gallery access to `anon` or `authenticated` browser roles.
 
 After deployment, `GET /api/health/supabase` performs a read-only connection
 check and returns only safe metadata (configuration state, hostname, project

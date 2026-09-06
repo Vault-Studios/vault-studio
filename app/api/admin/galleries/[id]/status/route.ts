@@ -38,7 +38,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const response = await fetch(`${url}/rest/v1/client_galleries?id=eq.${encodeURIComponent(id)}`, {
     method: "PATCH",
     headers: { ...authenticatedHeaders, "Content-Type": "application/json", Prefer: "return=minimal" },
-    body: JSON.stringify({ status, updated_at: new Date().toISOString() }),
+    body: JSON.stringify({
+      status,
+      updated_at: new Date().toISOString(),
+      ...(status === "active" || status === "draft" ? { selection_submitted_at: null } : {}),
+    }),
   });
   if (!response.ok) return NextResponse.json({ error: "Unable to update gallery." }, { status: 502 });
   return NextResponse.redirect(new URL(`/admin/galleries/${id}`, request.url), 303);

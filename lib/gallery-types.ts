@@ -12,8 +12,15 @@ export type ClientGallery = {
   selection_limit: number | null;
   allow_downloads: boolean;
   expires_at: string | null;
+  selection_submitted_at: string | null;
   created_at: string;
   updated_at: string;
+};
+
+export type ClientGallerySelection = {
+  gallery_id: string;
+  image_id: string;
+  selected_at: string;
 };
 
 export type ClientGalleryImage = {

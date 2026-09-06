@@ -6,7 +6,7 @@ import type { ClientGallery } from "../../../lib/gallery-types";
 
 async function getGalleries(accessToken: string) {
   const { url, key } = getSupabasePublicConfig();
-  const response = await fetch(`${url}/rest/v1/client_galleries?select=id,slug,title,client_name,client_email,event_date,description,status,selection_limit,allow_downloads,expires_at,created_at,updated_at&order=created_at.desc`, {
+  const response = await fetch(`${url}/rest/v1/client_galleries?select=id,slug,title,client_name,client_email,event_date,description,status,selection_limit,allow_downloads,expires_at,selection_submitted_at,created_at,updated_at&order=created_at.desc`, {
     headers: { apikey: key, Authorization: `Bearer ${accessToken}` },
     cache: "no-store",
   });

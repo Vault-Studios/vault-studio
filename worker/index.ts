@@ -7,6 +7,7 @@ interface Env {
   DB: D1Database;
   SUPABASE_URL?: string;
   SUPABASE_PUBLISHABLE_KEY?: string;
+  SUPABASE_SERVER_KEY?: string;
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {
@@ -29,6 +30,9 @@ function exposeSupabaseBindingsToVinext(env: Env) {
   }
   if (typeof env.SUPABASE_PUBLISHABLE_KEY === "string") {
     process.env.SUPABASE_PUBLISHABLE_KEY = env.SUPABASE_PUBLISHABLE_KEY;
+  }
+  if (typeof env.SUPABASE_SERVER_KEY === "string") {
+    process.env.SUPABASE_SERVER_KEY = env.SUPABASE_SERVER_KEY;
   }
 }
 
