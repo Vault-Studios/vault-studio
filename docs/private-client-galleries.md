@@ -55,3 +55,5 @@ Next:
 - Never return raw private Storage paths to an unauthenticated client before gallery authorization.
 - Signed image URLs should be short lived and regenerated only for an authorized gallery session.
 - Admin operations continue to use the authenticated admin JWT so Supabase RLS remains authoritative.
+
+> Checkpoint: admin manager foundation is ready for local build and runtime verification before client-session work begins.
