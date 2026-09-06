@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { readApiError } from "../../../lib/api-response";
 
 export default function LoginForm() {
   const [loading, setLoading] = useState(false);
@@ -22,18 +23,8 @@ export default function LoginForm() {
         }),
       });
 
-      const text = await response.text();
-      let data: { error?: string } = {};
-      if (text) {
-        try {
-          data = JSON.parse(text) as { error?: string };
-        } catch {
-          data = {};
-        }
-      }
-
       if (!response.ok) {
-        setError(data.error || `Unable to sign in (${response.status}).`);
+        setError(await readApiError(response, `Unable to sign in (${response.status}).`));
         return;
       }
 
