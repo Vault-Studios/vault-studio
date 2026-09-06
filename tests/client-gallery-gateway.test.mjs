@@ -104,7 +104,8 @@ test("selection writes enforce authorization, scope, uniqueness, limits, and fin
   assert.match(migrationSource, /where id = target_image_id and gallery_id = target_gallery_id/);
   assert.match(migrationSource, /current_selection_count >= gallery_selection_limit/);
   assert.match(migrationSource, /before insert or update or delete/);
-  assert.match(migrationSource, /return case when tg_op = 'DELETE' then old else new end/);
+  assert.match(migrationSource, /if tg_op = 'DELETE' then\s+return old;\s+end if;\s+return new;/);
+  assert.match(migrationSource, /if not found and tg_op = 'DELETE' then\s+return old/);
 });
 
 test("browser roles cannot read sessions or private gallery records", () => {
@@ -113,6 +114,9 @@ test("browser roles cannot read sessions or private gallery records", () => {
   assert.match(migrationSource, /revoke all on schema private from public, anon, authenticated/);
   assert.match(foundationMigrationSource, /'client-galleries', 'client-galleries', false/);
   assert.doesNotMatch(migrationSource, /grant .* to (anon|authenticated)/i);
+  assert.match(migrationSource, /revoke all on public\.client_galleries from service_role/);
+  assert.match(migrationSource, /grant update \(status, selection_submitted_at, updated_at\)/);
+  assert.match(migrationSource, /grant insert \(gallery_id, token_digest, expires_at\)/);
 });
 
 test("the privileged key is isolated from client, admin, and shared runtime modules", () => {
@@ -147,6 +151,8 @@ test("the privileged key is isolated from client, admin, and shared runtime modu
   assert.deepEqual(unexpectedReferences, []);
   assert.match(serverSource, /import "server-only"/);
   assert.match(serverSource, /headers\.set\("apikey", key\)/);
+  assert.match(serverSource, /hostname !== EXPECTED_SUPABASE_HOST/);
+  assert.match(serverSource, /hxqsnztxokfemmysyjyw\.supabase\.co/);
   assert.doesNotMatch(serverSource, /headers\.set\("Authorization"/);
   assert.doesNotMatch(serverSource, /export async function galleryRequest/);
   assert.doesNotMatch(adminGallerySource, /gallery-server|SUPABASE_SERVER_KEY|sb_secret_/i);

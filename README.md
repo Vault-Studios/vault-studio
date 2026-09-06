@@ -60,6 +60,11 @@ It must never use a `NEXT_PUBLIC_` or `VITE_` prefix. Existing admin, booking,
 review, and project routes continue to use the publishable key plus the signed-in
 administrator's JWT and RLS.
 
+For Vault Studio, `SUPABASE_URL` must be
+`https://hxqsnztxokfemmysyjyw.supabase.co`. The privileged gallery gateway
+refuses any other hostname so an incorrect runtime URL cannot receive the
+server key.
+
 Before deploying the private gallery routes, review and apply
 `supabase/migrations/20260906180553_private_client_gallery_sessions.sql` through
 the normal Supabase migration workflow. The migration creates hashed server

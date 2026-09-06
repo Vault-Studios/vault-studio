@@ -24,7 +24,7 @@ The client application must therefore use an application-mediated gallery sessio
 6. Selection writes are validated server-side against gallery/image membership, lifecycle, expiry, and selection limit.
 7. Downloads are exposed only when both gallery and image permit them.
 
-### Admin manager — implementation status
+### Implementation status
 
 Implemented on `feature/private-client-galleries`:
 
@@ -37,15 +37,14 @@ Implemented on `feature/private-client-galleries`:
 - upload metadata registration and ordering
 - draft/active/archive lifecycle controls
 - gallery security regression tests
+- client PIN/session endpoint with digest-only session persistence
+- `/gallery/[slug]` responsive viewer and lightbox
+- private, short-lived, server-proxied image delivery
+- favourites/selections with database-enforced limits and final submit lock
+- admin selection review and authenticated reopen control
 
-Next:
-
-- render private image previews for admins with short-lived signed URLs
-- image removal/reordering/download toggles
-- client PIN/session endpoint
-- `/gallery/[slug]` viewer
-- favourites/selections + submit lock
-- admin selection review
+Future administration enhancements may add private image previews, removal,
+reordering, and per-image download controls. They are not part of this release.
 
 ### Privacy requirements
 

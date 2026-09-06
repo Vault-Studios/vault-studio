@@ -6,6 +6,7 @@ import { getSupabasePublicConfig } from "./supabase";
 
 const PRIVATE_BUCKET = "client-galleries";
 const SIGNED_URL_SECONDS = 120;
+const EXPECTED_SUPABASE_HOST = "hxqsnztxokfemmysyjyw.supabase.co";
 
 type GalleryForPinVerification = ClientGallery & { pin_hash: string };
 
@@ -28,6 +29,11 @@ export type AuthorizedGallerySession = {
 function getGalleryServerConfig() {
   const { url } = getSupabasePublicConfig();
   const key = process.env.SUPABASE_SERVER_KEY?.trim() ?? "";
+  const hostname = new URL(url).hostname;
+
+  if (hostname !== EXPECTED_SUPABASE_HOST) {
+    throw new Error("Private gallery Supabase project configuration is invalid.");
+  }
 
   if (!key) {
     throw new Error(

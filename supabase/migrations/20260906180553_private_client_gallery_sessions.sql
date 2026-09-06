@@ -27,12 +27,26 @@ create index if not exists client_gallery_sessions_active_expiry_idx
 alter table public.client_gallery_sessions enable row level security;
 revoke all on public.client_gallery_sessions from public, anon, authenticated;
 
--- Explicit least-privilege grants for the server gateway role. RLS remains
--- enabled; Supabase secret keys map to service_role and bypass it server-side.
-grant select, update on public.client_galleries to service_role;
+-- Remove possible Supabase default privileges before granting only the columns
+-- and operations used by the private gallery gateway. RLS remains enabled;
+-- Supabase secret keys map to service_role and bypass it server-side.
+revoke all on public.client_galleries from service_role;
+revoke all on public.client_gallery_images from service_role;
+revoke all on public.client_gallery_selections from service_role;
+revoke all on public.client_gallery_sessions from service_role;
+
+grant select on public.client_galleries to service_role;
+grant update (status, selection_submitted_at, updated_at)
+  on public.client_galleries to service_role;
 grant select on public.client_gallery_images to service_role;
-grant select, insert, delete on public.client_gallery_selections to service_role;
-grant select, insert, update, delete on public.client_gallery_sessions to service_role;
+grant select, delete on public.client_gallery_selections to service_role;
+grant insert (gallery_id, image_id)
+  on public.client_gallery_selections to service_role;
+grant select on public.client_gallery_sessions to service_role;
+grant insert (gallery_id, token_digest, expires_at)
+  on public.client_gallery_sessions to service_role;
+grant update (revoked_at)
+  on public.client_gallery_sessions to service_role;
 
 create schema if not exists private;
 revoke all on schema private from public, anon, authenticated;
@@ -64,6 +78,14 @@ begin
   from public.client_galleries
   where id = target_gallery_id
   for update;
+
+  -- A parent gallery deletion intentionally cascades to its sessions, images,
+  -- and selections. At that point the parent row is no longer visible, so let
+  -- the FK cascade complete while continuing to reject every other orphaned
+  -- mutation.
+  if not found and tg_op = 'DELETE' then
+    return old;
+  end if;
 
   if not found or gallery_status <> 'active' then
     raise exception 'Gallery selections are closed.' using errcode = 'check_violation';
@@ -97,7 +119,10 @@ begin
     end if;
   end if;
 
-  return case when tg_op = 'DELETE' then old else new end;
+  if tg_op = 'DELETE' then
+    return old;
+  end if;
+  return new;
 end;
 $$;
 
