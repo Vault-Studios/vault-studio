@@ -79,3 +79,5 @@ If the build reveals Vinext/Cloudflare compatibility issues, fix them on the fea
 Admin image uploads are intentionally direct-to-Storage so large photo binaries do not pass through the Worker request body.
 
 Gallery activation is disabled in the admin UI until at least one image has been registered.
+
+This checkpoint intentionally leaves the client route inaccessible; no PIN entry screen is exposed until the session design is implemented.
