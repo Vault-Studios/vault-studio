@@ -21,21 +21,31 @@ The client application must therefore use an application-mediated gallery sessio
 3. Successful verification creates a short-lived, HttpOnly, Secure, SameSite=Lax gallery-session cookie scoped to the gallery flow. Do not place the PIN or reusable database credentials in the cookie.
 4. Gallery APIs validate that session before returning gallery metadata or accepting selections.
 5. Image viewing uses short-lived signed URLs for objects in the private bucket.
-6. Selection writes are validated server-side against the gallery ID, image membership, gallery status, expiry, and selection limit.
-7. Downloads are exposed only when both the gallery and image permit them.
+6. Selection writes are validated server-side against gallery/image membership, lifecycle, expiry, and selection limit.
+7. Downloads are exposed only when both gallery and image permit them.
 
-### Admin manager
+### Admin manager — implementation status
 
-The first application milestone is `/admin/galleries` with:
+Implemented on `feature/private-client-galleries`:
 
-- gallery list and lifecycle status
-- create/edit/archive gallery
-- server-side PIN hashing/reset
-- private direct-to-Storage image uploads
-- image ordering/removal
-- activate/deactivate controls
-- selection count and submitted-selection review
-- copyable client link
+- `/admin/galleries` authenticated list
+- `/admin/galleries/new` create form
+- server-side scrypt PIN hashing with random salt
+- authenticated create API using the admin JWT/RLS
+- gallery workspace/detail page
+- private signed direct-to-Storage upload authorization
+- upload metadata registration and ordering
+- draft/active/archive lifecycle controls
+- gallery security regression tests
+
+Next:
+
+- render private image previews for admins with short-lived signed URLs
+- image removal/reordering/download toggles
+- client PIN/session endpoint
+- `/gallery/[slug]` viewer
+- favourites/selections + submit lock
+- admin selection review
 
 ### Privacy requirements
 
