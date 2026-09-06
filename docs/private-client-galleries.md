@@ -57,3 +57,5 @@ Next:
 - Admin operations continue to use the authenticated admin JWT so Supabase RLS remains authoritative.
 
 > Checkpoint: admin manager foundation is ready for local build and runtime verification before client-session work begins.
+
+Local verification target: create one draft gallery, upload one small JPEG, activate it, and confirm the object remains inaccessible through a public Storage URL.
