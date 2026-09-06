@@ -95,3 +95,5 @@ Recommended verification command order: `git pull`, `npm run build`, `npm test`,
 If the upload succeeds, verify its metadata appears in the gallery workspace before activating the gallery.
 
 Do not use real client photographs during this first verification pass.
+
+After activation, the client URL is intentionally not functional yet; that is the next implementation slice.
