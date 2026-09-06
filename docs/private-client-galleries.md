@@ -59,3 +59,5 @@ Next:
 > Checkpoint: admin manager foundation is ready for local build and runtime verification before client-session work begins.
 
 Local verification target: create one draft gallery, upload one small JPEG, activate it, and confirm the object remains inaccessible through a public Storage URL.
+
+Do not merge this feature branch into `main` until the gallery client session/viewer and selection workflow have passed production smoke testing.
