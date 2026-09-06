@@ -77,3 +77,5 @@ Run the repository build/tests before treating this checkpoint as verified; thes
 If the build reveals Vinext/Cloudflare compatibility issues, fix them on the feature branch before deploying any gallery code.
 
 Admin image uploads are intentionally direct-to-Storage so large photo binaries do not pass through the Worker request body.
+
+Gallery activation is disabled in the admin UI until at least one image has been registered.
