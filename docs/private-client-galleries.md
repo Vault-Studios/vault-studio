@@ -83,3 +83,5 @@ Gallery activation is disabled in the admin UI until at least one image has been
 This checkpoint intentionally leaves the client route inaccessible; no PIN entry screen is exposed until the session design is implemented.
 
 Use a disposable gallery and non-sensitive photo for the first smoke test.
+
+The Supabase schema migration has already been applied; the checked-in SQL exists to keep repository schema history aligned with production.
