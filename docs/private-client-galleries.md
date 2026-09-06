@@ -95,3 +95,5 @@ If the upload succeeds, verify its metadata appears in the gallery workspace bef
 Do not use real client photographs during this first verification pass.
 
 After activation, the client URL is intentionally not functional yet; that is the next implementation slice.
+
+The stable Studio Pro production deployment remains unchanged.
