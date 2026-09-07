@@ -14,10 +14,21 @@ type Review = {
 
 export default function ReviewStories({ locale }: { locale: Locale }) {
   const sw = locale === "sw";
+  const copy = sw ? {
+    verification: "Barua pepe yako hutumika kwa uthibitisho tu na haitaonyeshwa.",
+    received: "Asante. Maoni yako yamefika studio na yataonekana baada ya kuthibitishwa.",
+    sending: "Tunatuma maoni yako studio...",
+    error: "Hatukuweza kuhifadhi maoni yako. Kagua fomu kisha ujaribu tena.",
+    retry: "Hatukuweza kuhifadhi maoni yako. Tafadhali jaribu tena.",
+  } : {
+    verification: "Your email is used for verification only and is never displayed.",
+    received: "Thank you. Your words are with the studio and will appear after approval.",
+    sending: "Sending your review to the studio...",
+    error: "We could not save your review. Please check the form and try again.",
+    retry: "We could not save your review. Please try again.",
+  };
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [message, setMessage] = useState(
-    "Your email is used for verification only and is never displayed."
-  );
+  const [message, setMessage] = useState(copy.verification);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -33,15 +44,13 @@ export default function ReviewStories({ locale }: { locale: Locale }) {
     const data = new FormData(form);
 
     if (data.get("website")) {
-      setMessage(
-        "Thank you. Your words are with the studio and will appear after approval."
-      );
+      setMessage(copy.received);
       form.reset();
       return;
     }
 
     setSubmitting(true);
-    setMessage("Sending your review to the studio...");
+    setMessage(copy.sending);
 
     try {
       const response = await fetch("/api/reviews", {
@@ -63,19 +72,17 @@ export default function ReviewStories({ locale }: { locale: Locale }) {
 
       if (!response.ok) {
         throw new Error(
-          "We could not save your review. Please check the form and try again."
+          copy.error
         );
       }
 
-      setMessage(
-        "Thank you. Your words are with the studio and will appear after approval."
-      );
+      setMessage(copy.received);
       form.reset();
     } catch (error) {
       setMessage(
         error instanceof Error
           ? error.message
-          : "We could not save your review. Please try again."
+          : copy.retry
       );
     } finally {
       setSubmitting(false);
@@ -124,10 +131,9 @@ export default function ReviewStories({ locale }: { locale: Locale }) {
             ))
           ) : (
             <div className="reviewEmpty">
-              <span>Client archive opening soon</span>
+              <span>{sw ? "Maktaba ya wateja itafunguliwa hivi karibuni" : "Client archive opening soon"}</span>
               <p>
-                We are inviting past collaborators to leave the first verified
-                reflections.
+                {sw ? "Tunawaalika washirika wetu wa awali kutuma maoni ya kwanza yaliyothibitishwa." : "We are inviting past collaborators to leave the first verified reflections."}
               </p>
             </div>
           )}
@@ -137,18 +143,17 @@ export default function ReviewStories({ locale }: { locale: Locale }) {
               <p className="eyebrow">{sw ? "Umefanya kazi na Vault?" : "Worked with Vault?"}</p>
               <h3>{sw ? "Eleza hadithi kwa maneno yako." : "Leave the story in your own words."}</h3>
               <p>
-                Your review is held for a quick authenticity check before it
-                appears here. We never rewrite your words.
+                {sw ? "Maoni yako yatakaguliwa kwa ufupi ili kuthibitisha uhalisi kabla hayajaonekana hapa. Hatubadilishi maneno yako." : "Your review is held for a quick authenticity check before it appears here. We never rewrite your words."}
               </p>
             </div>
 
             <form className="reviewForm" onSubmit={submitReview}>
               <label>
-                Your name *
+                {sw ? "Jina lako *" : "Your name *"}
                 <input name="name" autoComplete="name" required maxLength={120} />
               </label>
               <label>
-                Company / organisation
+                {sw ? "Kampuni / shirika" : "Company / organisation"}
                 <input
                   name="company"
                   autoComplete="organization"
@@ -156,7 +161,7 @@ export default function ReviewStories({ locale }: { locale: Locale }) {
                 />
               </label>
               <label>
-                Email for verification *
+                {sw ? "Barua pepe ya uthibitisho *" : "Email for verification *"}
                 <input
                   name="email"
                   type="email"
@@ -166,28 +171,28 @@ export default function ReviewStories({ locale }: { locale: Locale }) {
                 />
               </label>
               <label>
-                Project we made together *
+                {sw ? "Mradi tuliofanya pamoja *" : "Project we made together *"}
                 <input name="project" required maxLength={160} />
               </label>
               <label>
-                Your rating *
+                {sw ? "Tathmini yako *" : "Your rating *"}
                 <select name="rating" required defaultValue="5">
-                  <option value="5">5 — Exceptional</option>
-                  <option value="4">4 — Very good</option>
-                  <option value="3">3 — Good</option>
-                  <option value="2">2 — Fair</option>
-                  <option value="1">1 — Needs improvement</option>
+                  <option value="5">5 — {sw ? "Bora sana" : "Exceptional"}</option>
+                  <option value="4">4 — {sw ? "Nzuri sana" : "Very good"}</option>
+                  <option value="3">3 — {sw ? "Nzuri" : "Good"}</option>
+                  <option value="2">2 — {sw ? "Wastani" : "Fair"}</option>
+                  <option value="1">1 — {sw ? "Inahitaji kuboreshwa" : "Needs improvement"}</option>
                 </select>
               </label>
               <label className="reviewFieldFull">
-                Your review *
+                {sw ? "Maoni yako *" : "Your review *"}
                 <textarea
                   name="review"
                   rows={5}
                   required
                   minLength={30}
                   maxLength={1600}
-                  placeholder="What stood out about the process and the finished work?"
+                  placeholder={sw ? "Ni nini kilichokuvutia kuhusu mchakato na kazi iliyokamilika?" : "What stood out about the process and the finished work?"}
                 />
               </label>
               <label className="reviewHoneypot" aria-hidden="true">
@@ -197,14 +202,13 @@ export default function ReviewStories({ locale }: { locale: Locale }) {
               <label className="reviewConsent reviewFieldFull">
                 <input name="consent" type="checkbox" required />
                 <span>
-                  I confirm this reflects my genuine experience and allow Vault
-                  to publish my name, organisation and review.
+                  {sw ? "Ninathibitisha kuwa haya ni maoni yangu halisi na ninairuhusu Vault kuchapisha jina, shirika na maoni yangu." : "I confirm this reflects my genuine experience and allow Vault to publish my name, organisation and review."}
                 </span>
               </label>
               <div className="reviewAction reviewFieldFull">
                 <p>{message}</p>
                 <button type="submit" disabled={submitting}>
-                  {submitting ? "Sending..." : "Submit review"} <span>↗</span>
+                  {submitting ? (sw ? "Inatuma..." : "Sending...") : (sw ? "Tuma maoni" : "Submit review")} <span>↗</span>
                 </button>
               </div>
             </form>

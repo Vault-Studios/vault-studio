@@ -6,7 +6,7 @@ import type { Locale } from "../../lib/i18n";
 import { localizedPath } from "../../lib/i18n";
 import EximGallery from "./EximGallery";
 
-export default function EximCaseStudy({ project, locale, index = 0, total = 1 }: { project: Project; locale: Locale; index?: number; total?: number }) {
+export default function EximCaseStudy({ project, locale, index = 0, total = 1, featured = false }: { project: Project; locale: Locale; index?: number; total?: number; featured?: boolean }) {
   const [open, setOpen] = useState(false);
   const opener = useRef<HTMLButtonElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
@@ -16,24 +16,25 @@ export default function EximCaseStudy({ project, locale, index = 0, total = 1 }:
 
   useEffect(() => {
     if (!open) return;
+    const openerElement = opener.current;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     closeButton.current?.focus();
     const onKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") setOpen(false); };
     window.addEventListener("keydown", onKeyDown);
-    return () => { document.body.style.overflow = previousOverflow; window.removeEventListener("keydown", onKeyDown); opener.current?.focus(); };
+    return () => { document.body.style.overflow = previousOverflow; window.removeEventListener("keydown", onKeyDown); openerElement?.focus(); };
   }, [open]);
 
   return <>
-    <button className="projectCard portfolioCard" style={{ minHeight: "min(68vh, 660px)" }} type="button" ref={opener} aria-haspopup="dialog" onClick={() => setOpen(true)}>
+    <button className={`projectCard portfolioCard${featured ? " featuredProjectCard" : ""}`} type="button" ref={opener} aria-haspopup="dialog" onClick={() => setOpen(true)}>
       <img src={project.coverImage} alt={`${project.title} preview`} loading={index > 1 ? "lazy" : "eager"} />
       <span className="projectCardShade" />
       <span className="projectCardNumber">{number} / {count}</span>
       <span className="projectCardOpen" aria-hidden="true">↗</span>
       <span className="projectCardMeta">
-        <small>{project.category} · {project.year}</small>
-        <strong style={{ fontSize: "clamp(2.65rem, 5vw, 5.8rem)" }}>{project.client}<br />{project.title.replace(`${project.client} `, "")}</strong>
-        <em>{sw ? "Fungua mradi kamili" : "View the full project"}</em>
+        <small>{featured ? (sw ? "Mradi maalum" : "Featured project") : `${project.category} · ${project.year}`}</small>
+        <strong>{project.client}<br />{project.title.replace(`${project.client} `, "")}</strong>
+        <em>{featured ? (sw ? "Tazama mradi" : "View project") : (sw ? "Fungua mradi kamili" : "View the full project")}</em>
       </span>
     </button>
     <div className={`caseStudy${open ? " isOpen" : ""}`} aria-hidden={!open}>
