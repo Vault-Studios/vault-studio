@@ -37,3 +37,9 @@ export function generateGallerySessionToken() {
 export function digestGallerySessionToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
 }
+
+export function digestGalleryClient(slug: string, clientAddress: string) {
+  return createHash("sha256")
+    .update(`vault-gallery\0${slug}\0${clientAddress}`)
+    .digest("hex");
+}

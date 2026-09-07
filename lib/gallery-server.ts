@@ -20,6 +20,11 @@ type GallerySessionRow = {
   revoked_at: string | null;
 };
 
+type GalleryUnlockAttempt = {
+  failure_count: number;
+  locked_until: string | null;
+};
+
 export type AuthorizedGallerySession = {
   sessionId: string;
   gallery: ClientGallery;
@@ -96,6 +101,32 @@ export async function createGallerySession(
   const rows = (await response.json()) as GallerySessionRow[];
   if (!rows[0]) throw new Error("Private gallery session was not created.");
   return rows[0];
+}
+
+export async function getGalleryUnlockAttempt(galleryId: string, clientDigest: string) {
+  const rows = await galleryRows<GalleryUnlockAttempt>(
+    `client_gallery_unlock_attempts?gallery_id=eq.${encodeURIComponent(galleryId)}&client_digest=eq.${encodeURIComponent(clientDigest)}&select=failure_count,locked_until&limit=1`
+  );
+  return rows[0] ?? null;
+}
+
+export async function registerGalleryUnlockFailure(galleryId: string, clientDigest: string) {
+  const response = await galleryRequest("/rest/v1/rpc/register_client_gallery_unlock_failure", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ p_gallery_id: galleryId, p_client_digest: clientDigest }),
+  });
+  const payload = (await response.json()) as GalleryUnlockAttempt | GalleryUnlockAttempt[];
+  const attempt = Array.isArray(payload) ? payload[0] : payload;
+  if (!attempt) throw new Error("Gallery unlock limit was not recorded.");
+  return attempt;
+}
+
+export async function clearGalleryUnlockFailures(galleryId: string, clientDigest: string) {
+  await galleryRequest(
+    `/rest/v1/client_gallery_unlock_attempts?gallery_id=eq.${encodeURIComponent(galleryId)}&client_digest=eq.${encodeURIComponent(clientDigest)}`,
+    { method: "DELETE", headers: { Prefer: "return=minimal" } }
+  );
 }
 
 export async function getAuthorizedGallerySession(

@@ -69,7 +69,8 @@ Before deploying the private gallery routes, review and apply
 `supabase/migrations/20260906180553_private_client_gallery_sessions.sql` through
 the normal Supabase migration workflow. The migration creates hashed server
 sessions and database-enforced gallery lifecycle/selection limits; it grants no
-gallery access to `anon` or `authenticated` browser roles.
+gallery access to `anon` or `authenticated` browser roles. It also adds an
+atomic five-failure/15-minute PIN throttle keyed by a one-way client digest.
 
 After deployment, `GET /api/health/supabase` performs a read-only connection
 check and returns only safe metadata (configuration state, hostname, project

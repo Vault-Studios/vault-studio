@@ -1,11 +1,18 @@
 import { NextResponse } from "next/server";
 import {
+  digestGalleryClient,
   digestGallerySessionToken,
   generateGallerySessionToken,
   verifyGalleryPin,
 } from "../../../../lib/gallery-security";
 import { isGalleryExpired } from "../../../../lib/gallery-types";
-import { createGallerySession, getGalleryForPinVerification } from "../../../../lib/gallery-server";
+import {
+  clearGalleryUnlockFailures,
+  createGallerySession,
+  getGalleryForPinVerification,
+  getGalleryUnlockAttempt,
+  registerGalleryUnlockFailure,
+} from "../../../../lib/gallery-server";
 import {
   GALLERY_SESSION_COOKIE,
   GALLERY_SESSION_SECONDS,
@@ -34,15 +41,42 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
   try {
     const gallery = await getGalleryForPinVerification(slug);
     const candidateHash = gallery?.pin_hash ?? DUMMY_PIN_HASH;
+    const clientDigest = digestGalleryClient(
+      slug,
+      request.headers.get("cf-connecting-ip")?.trim() || "unknown"
+    );
+    const unlockAttempt = gallery
+      ? await getGalleryUnlockAttempt(gallery.id, clientDigest)
+      : null;
+    const isLocked = Boolean(
+      unlockAttempt?.locked_until && new Date(unlockAttempt.locked_until).getTime() > Date.now()
+    );
     const pinMatches = verifyGalleryPin(pin, candidateHash);
     const accessible = Boolean(
       gallery && gallery.status === "active" && !isGalleryExpired(gallery.expires_at)
     );
 
+    if (isLocked) {
+      return NextResponse.json(
+        { error: "Too many attempts. Try again later." },
+        { status: 429, headers: { "Retry-After": "900" } }
+      );
+    }
+
     if (!pinMatches || !accessible || !gallery) {
+      if (gallery && accessible) {
+        const failed = await registerGalleryUnlockFailure(gallery.id, clientDigest);
+        if (failed.locked_until && new Date(failed.locked_until).getTime() > Date.now()) {
+          return NextResponse.json(
+            { error: "Too many attempts. Try again later." },
+            { status: 429, headers: { "Retry-After": "900" } }
+          );
+        }
+      }
       return NextResponse.json({ error: "Gallery or PIN not recognized." }, { status: 401 });
     }
 
+    await clearGalleryUnlockFailures(gallery.id, clientDigest);
     const token = generateGallerySessionToken();
     const expiresAt = new Date(Date.now() + GALLERY_SESSION_SECONDS * 1000).toISOString();
     await createGallerySession(gallery.id, digestGallerySessionToken(token), expiresAt);

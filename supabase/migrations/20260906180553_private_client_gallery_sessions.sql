@@ -17,6 +17,16 @@ create table if not exists public.client_gallery_sessions (
   constraint client_gallery_sessions_expiry_check check (expires_at > created_at)
 );
 
+create table if not exists public.client_gallery_unlock_attempts (
+  gallery_id uuid not null references public.client_galleries(id) on delete cascade,
+  client_digest text not null check (client_digest ~ '^[a-f0-9]{64}$'),
+  failure_count integer not null default 1 check (failure_count > 0),
+  window_started_at timestamptz not null default now(),
+  locked_until timestamptz,
+  updated_at timestamptz not null default now(),
+  primary key (gallery_id, client_digest)
+);
+
 create index if not exists client_gallery_sessions_gallery_idx
   on public.client_gallery_sessions (gallery_id, expires_at desc);
 
@@ -24,8 +34,13 @@ create index if not exists client_gallery_sessions_active_expiry_idx
   on public.client_gallery_sessions (expires_at)
   where revoked_at is null;
 
+create index if not exists client_gallery_unlock_attempts_updated_idx
+  on public.client_gallery_unlock_attempts (updated_at);
+
 alter table public.client_gallery_sessions enable row level security;
+alter table public.client_gallery_unlock_attempts enable row level security;
 revoke all on public.client_gallery_sessions from public, anon, authenticated;
+revoke all on public.client_gallery_unlock_attempts from public, anon, authenticated;
 
 -- Remove possible Supabase default privileges before granting only the columns
 -- and operations used by the private gallery gateway. RLS remains enabled;
@@ -34,6 +49,7 @@ revoke all on public.client_galleries from service_role;
 revoke all on public.client_gallery_images from service_role;
 revoke all on public.client_gallery_selections from service_role;
 revoke all on public.client_gallery_sessions from service_role;
+revoke all on public.client_gallery_unlock_attempts from service_role;
 
 grant select on public.client_galleries to service_role;
 grant update (status, selection_submitted_at, updated_at)
@@ -47,9 +63,75 @@ grant insert (gallery_id, token_digest, expires_at)
   on public.client_gallery_sessions to service_role;
 grant update (revoked_at)
   on public.client_gallery_sessions to service_role;
+grant select, insert, update, delete
+  on public.client_gallery_unlock_attempts to service_role;
 
 create schema if not exists private;
 revoke all on schema private from public, anon, authenticated;
+
+create or replace function public.register_client_gallery_unlock_failure(
+  p_gallery_id uuid,
+  p_client_digest text
+)
+returns public.client_gallery_unlock_attempts
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+declare
+  result public.client_gallery_unlock_attempts;
+begin
+  if p_client_digest !~ '^[a-f0-9]{64}$' then
+    raise exception 'Invalid gallery client digest.' using errcode = 'check_violation';
+  end if;
+
+  insert into public.client_gallery_unlock_attempts (
+    gallery_id,
+    client_digest,
+    failure_count,
+    window_started_at,
+    locked_until,
+    updated_at
+  ) values (
+    p_gallery_id,
+    p_client_digest,
+    1,
+    now(),
+    null,
+    now()
+  )
+  on conflict (gallery_id, client_digest) do update
+  set failure_count = case
+        when public.client_gallery_unlock_attempts.window_started_at <= now() - interval '15 minutes'
+          then 1
+        else public.client_gallery_unlock_attempts.failure_count + 1
+      end,
+      window_started_at = case
+        when public.client_gallery_unlock_attempts.window_started_at <= now() - interval '15 minutes'
+          then now()
+        else public.client_gallery_unlock_attempts.window_started_at
+      end,
+      locked_until = case
+        when public.client_gallery_unlock_attempts.window_started_at <= now() - interval '15 minutes'
+          then null
+        when public.client_gallery_unlock_attempts.failure_count + 1 >= 5
+          then coalesce(
+            public.client_gallery_unlock_attempts.locked_until,
+            now() + interval '15 minutes'
+          )
+        else public.client_gallery_unlock_attempts.locked_until
+      end,
+      updated_at = now()
+  returning * into result;
+
+  return result;
+end;
+$$;
+
+revoke execute on function public.register_client_gallery_unlock_failure(uuid, text)
+  from public, anon, authenticated;
+grant execute on function public.register_client_gallery_unlock_failure(uuid, text)
+  to service_role;
 
 create or replace function private.enforce_client_gallery_selection()
 returns trigger

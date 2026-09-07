@@ -7,8 +7,26 @@ begin
   end if;
 
   if has_table_privilege('anon', 'public.client_gallery_sessions', 'select')
-     or has_table_privilege('authenticated', 'public.client_gallery_sessions', 'select') then
+     or has_table_privilege('authenticated', 'public.client_gallery_sessions', 'select')
+     or has_table_privilege('anon', 'public.client_gallery_unlock_attempts', 'select')
+     or has_table_privilege('authenticated', 'public.client_gallery_unlock_attempts', 'select') then
     raise exception 'browser roles must not read gallery sessions';
+  end if;
+
+  if has_function_privilege(
+       'anon',
+       'public.register_client_gallery_unlock_failure(uuid, text)',
+       'execute'
+     ) or has_function_privilege(
+       'authenticated',
+       'public.register_client_gallery_unlock_failure(uuid, text)',
+       'execute'
+     ) or not has_function_privilege(
+       'service_role',
+       'public.register_client_gallery_unlock_failure(uuid, text)',
+       'execute'
+     ) then
+    raise exception 'unlock failure function privileges are incorrect';
   end if;
 
   if has_table_privilege('service_role', 'public.client_galleries', 'insert')
@@ -107,6 +125,26 @@ values (
   now() + interval '1 hour'
 );
 
+select public.register_client_gallery_unlock_failure(
+  '00000000-0000-4000-8000-000000000001',
+  repeat('b', 64)
+) from generate_series(1, 5);
+
+do $$
+begin
+  if not exists (
+    select 1
+    from public.client_gallery_unlock_attempts
+    where gallery_id = '00000000-0000-4000-8000-000000000001'
+      and client_digest = repeat('b', 64)
+      and failure_count = 5
+      and locked_until > now()
+  ) then
+    raise exception 'gallery PIN failure limiter did not lock atomically';
+  end if;
+end
+$$;
+
 insert into public.client_gallery_selections (gallery_id, image_id)
 values (
   '00000000-0000-4000-8000-000000000001',
@@ -179,6 +217,9 @@ begin
     where gallery_id = '00000000-0000-4000-8000-000000000001'
   ) or exists (
     select 1 from public.client_gallery_selections
+    where gallery_id = '00000000-0000-4000-8000-000000000001'
+  ) or exists (
+    select 1 from public.client_gallery_unlock_attempts
     where gallery_id = '00000000-0000-4000-8000-000000000001'
   ) then
     raise exception 'gallery child rows did not cascade';

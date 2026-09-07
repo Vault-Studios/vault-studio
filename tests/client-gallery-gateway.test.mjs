@@ -5,6 +5,7 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 
 import {
+  digestGalleryClient,
   digestGallerySessionToken,
   generateGallerySessionToken,
   hashGalleryPin,
@@ -46,6 +47,20 @@ test("unlocking fails closed for missing, inactive, or expired galleries", () =>
   assert.match(unlockSource, /!isGalleryExpired\(gallery\.expires_at\)/);
   assert.match(unlockSource, /if \(!pinMatches \|\| !accessible \|\| !gallery\)/);
   assert.match(unlockSource, /status: 401/);
+});
+
+test("PIN failures are rate-limited without storing a plaintext client address", () => {
+  const digest = digestGalleryClient("release-review", "203.0.113.10");
+  assert.match(digest, /^[a-f0-9]{64}$/);
+  assert.doesNotMatch(digest, /203\.0\.113\.10/);
+  assert.match(unlockSource, /request\.headers\.get\("cf-connecting-ip"\)/);
+  assert.match(unlockSource, /getGalleryUnlockAttempt\(gallery\.id, clientDigest\)/);
+  assert.match(unlockSource, /registerGalleryUnlockFailure\(gallery\.id, clientDigest\)/);
+  assert.match(unlockSource, /status: 429/);
+  assert.match(unlockSource, /"Retry-After": "900"/);
+  assert.match(migrationSource, /failure_count \+ 1 >= 5/);
+  assert.match(migrationSource, /interval '15 minutes'/);
+  assert.match(migrationSource, /revoke execute on function public\.register_client_gallery_unlock_failure/);
 });
 
 test("gallery sessions use an opaque token while Supabase stores only its digest", () => {
@@ -111,6 +126,7 @@ test("selection writes enforce authorization, scope, uniqueness, limits, and fin
 test("browser roles cannot read sessions or private gallery records", () => {
   assert.match(migrationSource, /alter table public\.client_gallery_sessions enable row level security/);
   assert.match(migrationSource, /revoke all on public\.client_gallery_sessions from public, anon, authenticated/);
+  assert.match(migrationSource, /revoke all on public\.client_gallery_unlock_attempts from public, anon, authenticated/);
   assert.match(migrationSource, /revoke all on schema private from public, anon, authenticated/);
   assert.match(foundationMigrationSource, /'client-galleries', 'client-galleries', false/);
   assert.doesNotMatch(migrationSource, /grant .* to (anon|authenticated)/i);
