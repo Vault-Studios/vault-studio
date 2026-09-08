@@ -7,7 +7,8 @@ const root = new URL("../", import.meta.url);
 test("editorial landing remains connected to CMS projects and existing conversion flows", async () => {
   const home = await readFile(new URL("app/components/VaultHome.tsx", root), "utf8");
 
-  assert.match(home, /await getProjects\(locale\)/);
+  assert.match(home, /getProjects\(locale\)/);
+  assert.match(home, /getPublicLandingMediaSlots\(\)/);
   assert.match(home, /<ReviewStories locale=\{locale\}/);
   assert.match(home, /<AvailabilityBand locale=\{locale\}/);
   assert.match(home, /localizedPath\(locale, "\/book"\)/);

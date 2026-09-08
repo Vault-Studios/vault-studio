@@ -76,6 +76,19 @@ After deployment, `GET /api/health/supabase` performs a read-only connection
 check and returns only safe metadata (configuration state, hostname, project
 reference, key type, and upstream status). It never returns the key.
 
+### Landing-page media curation
+
+Apply `supabase/migrations/20260907132115_landing_media_slots.sql` before using
+**Admin → Landing Page**. The screen lets an authenticated Vault administrator
+assign existing images from published projects to the hero, service, parallax,
+studio-story, featured and optional closing positions. It stores references to
+the existing project records, not duplicate image files.
+
+Public visitors can read active landing choices only. All writes continue to use
+the administrator's Supabase JWT and the existing `admin_users` RLS authorization
+model. If a choice is cleared, unpublished, deleted or otherwise unavailable,
+the homepage keeps rendering with its automatic CMS-derived selection.
+
 ## Update the studio status
 
 Open Supabase → **Table Editor** → `availability_status` and edit the `studio` row. The public site reads this row automatically; no redeployment is needed.

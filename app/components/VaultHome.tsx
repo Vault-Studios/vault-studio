@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getProjects } from "../../lib/content";
 import type { Locale } from "../../lib/i18n";
 import { dictionaries, localizedPath } from "../../lib/i18n";
+import { getPublicLandingMediaSlots, resolveLandingImage, resolveLandingProject } from "../../lib/landing-media";
 import AvailabilityBand from "./AvailabilityBand";
 import CinematicParallax from "./CinematicParallax";
 import DepthHero from "./DepthHero";
@@ -28,18 +29,74 @@ function Arrow() {
 export default async function VaultHome({ locale }: { locale: Locale }) {
   const dictionary = dictionaries[locale];
   const copy = dictionary.home;
-  const projects = await getProjects(locale);
+  const [projects, landingSlots] = await Promise.all([getProjects(locale), getPublicLandingMediaSlots()]);
   const sw = locale === "sw";
   const heroProject = projects[2] || projects[0];
   const storyProject = projects[1] || projects[0];
   const featuredProject = projects[0];
+  const defaultImage = "/work/exim-bank/exim-townhall-stage.webp";
+  const imageFallback = (src: string | undefined, alt: string, sourceLabel?: string) => ({
+    src: src || defaultImage,
+    alt,
+    sourceLabel,
+  });
+  const heroImage = resolveLandingImage(
+    landingSlots,
+    projects,
+    "hero",
+    locale,
+    imageFallback(heroProject?.coverImage, heroProject ? `${heroProject.title} photographed by Vault` : "Vault production in Dar es Salaam", heroProject?.client),
+  );
+  const serviceSlotKeys = ["service_photography", "service_film", "service_commercial"] as const;
+  const serviceImages = serviceSlotKeys.map((key, index) => {
+    const project = projects[index % Math.max(1, projects.length)];
+    return resolveLandingImage(
+      landingSlots,
+      projects,
+      key,
+      locale,
+      imageFallback(project?.gallery[index]?.src || project?.coverImage, project?.gallery[index]?.alt || project?.title || "Vault project", project?.client),
+    );
+  });
+  const parallaxImages = (["parallax_1", "parallax_2", "parallax_3"] as const).map((key, index) => {
+    const project = projects[index];
+    return resolveLandingImage(
+      landingSlots,
+      projects,
+      key,
+      locale,
+      imageFallback(project?.gallery[0]?.src || project?.coverImage, project?.gallery[0]?.alt || project?.title || "Vault project", project?.client),
+    );
+  });
+  const storyImage = resolveLandingImage(
+    landingSlots,
+    projects,
+    "studio_story",
+    locale,
+    imageFallback(storyProject?.gallery[1]?.src || storyProject?.coverImage || "/work/exim-bank/exim-townhall-audience.webp", storyProject ? `${storyProject.title}, photographed by Vault` : "Vault project detail", storyProject?.client),
+  );
+  const selectedFeaturedProject = resolveLandingProject(landingSlots, projects, featuredProject);
+  const takeoverImage = resolveLandingImage(
+    landingSlots,
+    projects,
+    "featured_takeover_image",
+    locale,
+    imageFallback(selectedFeaturedProject?.gallery[4]?.src || selectedFeaturedProject?.coverImage, selectedFeaturedProject?.title || "Featured Vault project", selectedFeaturedProject?.client),
+  );
+  const closingImage = resolveLandingImage(
+    landingSlots,
+    projects,
+    "closing_background",
+    locale,
+    { src: "", alt: "" },
+  );
 
   return (
     <main className="editorialHome">
       <DepthHero
         locale={locale}
-        image={heroProject?.coverImage || "/work/exim-bank/exim-townhall-stage.webp"}
-        imageAlt={heroProject ? `${heroProject.title} photographed by Vault` : "Vault production in Dar es Salaam"}
+        image={heroImage.src}
+        imageAlt={heroImage.alt}
       />
 
       <section className="brandStatement shell" aria-labelledby="brand-statement-title">
@@ -78,11 +135,11 @@ export default async function VaultHome({ locale }: { locale: Locale }) {
         </div>
         <div className="editorialServiceList">
           {serviceCopy[locale].map(([number, title, description], index) => {
-            const project = projects[index % Math.max(1, projects.length)];
+            const image = serviceImages[index];
             return (
               <article className="editorialService" key={number}>
                 <div className="editorialServiceMedia">
-                  <img src={project?.gallery[index]?.src || project?.coverImage || "/work/exim-bank/exim-townhall-stage.webp"} alt="" loading="lazy" />
+                  <img src={image.src} alt={image.alt} loading="lazy" />
                 </div>
                 <span>{number}</span>
                 <h3>{title}</h3>
@@ -93,11 +150,11 @@ export default async function VaultHome({ locale }: { locale: Locale }) {
         </div>
       </section>
 
-      <CinematicParallax projects={projects} locale={locale} />
+      <CinematicParallax projects={projects} locale={locale} curatedImages={parallaxImages} />
 
       <section className="studioStory shell" id="studio" aria-labelledby="studio-story-title">
         <div className="studioStoryMedia">
-          <img src={storyProject?.gallery[1]?.src || storyProject?.coverImage || "/work/exim-bank/exim-townhall-audience.webp"} alt={storyProject ? `${storyProject.title}, photographed by Vault` : "Vault project detail"} loading="lazy" />
+          <img src={storyImage.src} alt={storyImage.alt} loading="lazy" />
         </div>
         <div className="studioStoryCopy">
           <p className="editorialKicker">{sw ? "Studio" : "The studio"}</p>
@@ -107,16 +164,18 @@ export default async function VaultHome({ locale }: { locale: Locale }) {
         </div>
       </section>
 
-      {featuredProject && (
+      {selectedFeaturedProject && (
         <section className="featuredTakeover" aria-label={sw ? "Mradi maalum" : "Featured project"}>
-          <EximCaseStudy project={{ ...featuredProject, coverImage: featuredProject.gallery[4]?.src || featuredProject.coverImage }} locale={locale} featured />
+          <EximCaseStudy project={{ ...selectedFeaturedProject, coverImage: takeoverImage.src }} locale={locale} featured />
         </section>
       )}
 
       <ReviewStories locale={locale} />
       <AvailabilityBand locale={locale} />
 
-      <section className="editorialClosing" aria-labelledby="closing-title">
+      <section className={`editorialClosing${closingImage.src ? " hasMedia" : ""}`} aria-labelledby="closing-title">
+        {closingImage.src && <img className="editorialClosingMedia" src={closingImage.src} alt="" loading="lazy" />}
+        {closingImage.src && <span className="editorialClosingVeil" aria-hidden="true" />}
         <div className="shell">
           <p className="editorialKicker">{sw ? "Una mradi akilini?" : "Have a project in mind?"}</p>
           <h2 id="closing-title">{sw ? "Tuanzishe mazungumzo." : "Start a conversation."}</h2>

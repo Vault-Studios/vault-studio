@@ -1299,6 +1299,239 @@ textarea {
   background: var(--gold);
 }
 
+/* Admin landing-page curation */
+.landingAdmin {
+  min-height: 100vh;
+  padding: 32px clamp(20px, 5vw, 72px) 80px;
+  background: #080808;
+  color: #fff;
+}
+
+.landingAdminHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 28px;
+  margin-bottom: 34px;
+}
+
+.landingAdminHeader a {
+  color: inherit;
+  font-size: .82rem;
+  text-decoration: none;
+}
+
+.landingAdminHeader p {
+  margin: 28px 0 8px;
+  color: var(--gold);
+  font-size: .72rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.landingAdminHeader h1 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.5rem, 5vw, 4.8rem);
+  font-weight: 400;
+}
+
+.landingAdminHeader span {
+  display: block;
+  max-width: 620px;
+  margin-top: 12px;
+  color: rgba(255, 255, 255, .58);
+  line-height: 1.6;
+}
+
+.landingAdminHeader .landingViewSite {
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 255, 255, .25);
+  border-radius: 12px;
+}
+
+.landingAdminMessage {
+  position: sticky;
+  top: 16px;
+  z-index: 20;
+  width: fit-content;
+  margin: 0 0 18px auto;
+  padding: 11px 15px;
+  border: 1px solid rgba(213, 165, 69, .45);
+  border-radius: 12px;
+  background: #15130e;
+  color: #efd69f;
+}
+
+.landingSlotList {
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, .02);
+}
+
+.landingSlot {
+  display: grid;
+  grid-template-columns: minmax(210px, 1.1fr) 112px minmax(180px, .9fr) auto;
+  gap: 20px;
+  align-items: center;
+  padding: 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, .1);
+}
+
+.landingSlot:last-child { border-bottom: 0; }
+.landingSlotCopy p { margin: 0 0 7px; font-weight: 650; }
+.landingSlotCopy span,
+.landingSlotSource span { color: rgba(255, 255, 255, .5); font-size: .78rem; line-height: 1.45; }
+
+.landingSlotThumb {
+  display: grid;
+  width: 112px;
+  aspect-ratio: 16 / 10;
+  place-items: center;
+  overflow: hidden;
+  border: 1px dashed rgba(255, 255, 255, .2);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, .35);
+  font-size: .68rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.landingSlotThumb.hasImage { border-style: solid; }
+.landingSlotThumb img { width: 100%; height: 100%; object-fit: cover; }
+.landingSlotSource { display: grid; gap: 5px; }
+.landingSlotSource strong { font-size: .86rem; font-weight: 550; }
+.landingSlotActions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+
+.landingSlotActions button,
+.landingChooser button {
+  min-height: 40px;
+  padding: 9px 13px;
+  border: 1px solid rgba(255, 255, 255, .2);
+  border-radius: 10px;
+  background: #fff;
+  color: #090909;
+  cursor: pointer;
+}
+
+.landingSlotActions button.quiet { background: transparent; color: #fff; }
+.landingSlotActions button:disabled,
+.landingChooser button:disabled { cursor: not-allowed; opacity: .4; }
+
+.landingAltFields {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 12px;
+  align-items: end;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, .08);
+}
+
+.landingAltFields label {
+  display: grid;
+  gap: 7px;
+  color: rgba(255, 255, 255, .6);
+  font-size: .72rem;
+}
+
+.landingAltFields input {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 10px;
+  outline: 0;
+  background: rgba(255, 255, 255, .04);
+  color: #fff;
+}
+
+.landingAltFields input:focus { border-color: var(--gold); }
+.landingAltFields button { min-height: 40px; padding: 9px 13px; border: 1px solid var(--gold); border-radius: 10px; background: var(--gold); color: #090909; cursor: pointer; }
+
+.landingChooser {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, .82);
+  backdrop-filter: blur(12px);
+}
+
+.landingChooser > section {
+  width: min(1060px, 100%);
+  max-height: min(780px, calc(100vh - 48px));
+  overflow: auto;
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 22px;
+  background: #0d0d0d;
+  box-shadow: 0 40px 120px rgba(0, 0, 0, .7);
+}
+
+.landingChooser header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, .1);
+  background: rgba(13, 13, 13, .96);
+}
+
+.landingChooser header p { margin: 0 0 6px; color: var(--gold); font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; }
+.landingChooser header h2 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: 1.8rem; font-weight: 400; }
+.landingChooser header > button { width: 42px; padding: 0; border-radius: 50%; background: transparent; color: #fff; font-size: 1.5rem; }
+
+.landingChoiceGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 12px;
+  padding: 20px;
+}
+
+.landingChoiceGrid > button {
+  display: grid;
+  min-height: 0;
+  padding: 0 0 14px;
+  overflow: hidden;
+  border-color: rgba(255, 255, 255, .12);
+  background: rgba(255, 255, 255, .03);
+  color: #fff;
+  text-align: left;
+}
+
+.landingChoiceGrid img,
+.landingChoiceBlank { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.landingChoiceBlank { display: grid; place-items: center; background: rgba(255, 255, 255, .05); color: rgba(255, 255, 255, .4); }
+.landingChoiceGrid strong,
+.landingChoiceGrid small { margin-inline: 13px; }
+.landingChoiceGrid strong { margin-top: 12px; font-size: .86rem; }
+.landingChoiceGrid small { margin-top: 5px; color: rgba(255, 255, 255, .5); line-height: 1.4; }
+.landingChoiceEmpty { padding: 40px 24px; color: rgba(255, 255, 255, .55); text-align: center; }
+
+@media (max-width: 900px) {
+  .landingSlot { grid-template-columns: 92px 1fr; }
+  .landingSlotCopy { grid-column: 1 / -1; }
+  .landingSlotThumb { width: 92px; }
+  .landingSlotActions { grid-column: 1 / -1; justify-content: stretch; }
+  .landingSlotActions button { flex: 1; }
+  .landingAltFields { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 560px) {
+  .landingAdmin { padding-inline: 16px; }
+  .landingAdminHeader { display: grid; }
+  .landingAdminHeader .landingViewSite { width: fit-content; }
+  .landingChooser { padding: 10px; }
+  .landingChooser > section { max-height: calc(100vh - 20px); }
+  .landingChoiceGrid { grid-template-columns: 1fr 1fr; padding: 12px; }
+}
+
 .availabilityBand.status-unavailable .statusOrb i {
   background: #a7a29a;
   animation: none;
@@ -2704,8 +2937,39 @@ textarea {
 }
 
 .editorialClosing {
+  position: relative;
+  overflow: hidden;
   padding-block: clamp(120px, 17vw, 250px);
   background: var(--gold);
+}
+
+.editorialClosingMedia,
+.editorialClosingVeil {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.editorialClosingMedia {
+  object-fit: cover;
+}
+
+.editorialClosingVeil {
+  background: linear-gradient(90deg, rgba(4, 4, 4, .9), rgba(4, 4, 4, .5));
+}
+
+.editorialClosing > .shell {
+  position: relative;
+  z-index: 1;
+}
+
+.editorialClosing.hasMedia {
+  color: white;
+}
+
+.editorialClosing.hasMedia .editorialKicker {
+  color: rgba(255, 255, 255, .66);
 }
 
 .editorialClosing .editorialKicker {

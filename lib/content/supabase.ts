@@ -16,6 +16,7 @@ type ProjectRow = {
 };
 
 type ImageRow = {
+  id: string;
   project_id: string;
   image_url: string;
   alt_text: string;
@@ -38,7 +39,7 @@ export async function supabaseProjects(locale: Locale): Promise<Project[]> {
 
   const ids = rows.map((project) => project.id).join(",");
   const imageResponse = await fetch(
-    `${url}/rest/v1/project_images?project_id=in.(${ids})&select=project_id,image_url,alt_text,sort_order&order=sort_order.asc,created_at.asc`,
+    `${url}/rest/v1/project_images?project_id=in.(${ids})&select=id,project_id,image_url,alt_text,sort_order&order=sort_order.asc,created_at.asc`,
     {
       headers: { apikey: key },
       cache: "no-store",
@@ -56,6 +57,7 @@ export async function supabaseProjects(locale: Locale): Promise<Project[]> {
       const summary = row.summary || row.description;
 
       return {
+        id: row.id,
         slug: row.slug,
         locale,
         client: row.client_name || "Vault Studio",
@@ -67,6 +69,8 @@ export async function supabaseProjects(locale: Locale): Promise<Project[]> {
         services: row.category || (locale === "sw" ? "Picha na filamu" : "Photography & film"),
         coverImage,
         gallery: galleryRows.map((image) => ({
+          id: image.id,
+          projectId: image.project_id,
           src: image.image_url,
           alt: image.alt_text || row.title,
           caption: image.alt_text || row.title,

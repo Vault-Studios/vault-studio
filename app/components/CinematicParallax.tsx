@@ -3,15 +3,17 @@
 import { CSSProperties, useEffect, useRef } from "react";
 import type { Project } from "../../lib/content/types";
 import type { Locale } from "../../lib/i18n";
+import type { ResolvedLandingImage } from "../../lib/landing-media";
 
-export default function CinematicParallax({ projects, locale }: { projects: Project[]; locale: Locale }) {
+export default function CinematicParallax({ projects, locale, curatedImages }: { projects: Project[]; locale: Locale; curatedImages?: ResolvedLandingImage[] }) {
   const sectionRef = useRef<HTMLElement>(null);
   const sw = locale === "sw";
-  const images = projects.slice(0, 3).map((project) => ({
+  const automaticImages = projects.slice(0, 3).map((project) => ({
     src: project.gallery[0]?.src || project.coverImage,
     alt: project.gallery[0]?.alt || `${project.title} project`,
-    title: project.client,
+    sourceLabel: project.client,
   }));
+  const images = curatedImages?.length ? curatedImages : automaticImages;
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -58,7 +60,7 @@ export default function CinematicParallax({ projects, locale }: { projects: Proj
               style={{ "--frame-index": index } as CSSProperties}
             >
               <img src={image.src} alt="" loading="lazy" />
-              <figcaption>{String(index + 1).padStart(2, "0")} / {image.title}</figcaption>
+              <figcaption>{String(index + 1).padStart(2, "0")} / {image.sourceLabel || "Vault Studio"}</figcaption>
             </figure>
           ))}
         </div>

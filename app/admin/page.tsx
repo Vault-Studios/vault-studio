@@ -63,6 +63,7 @@ export default async function AdminDashboardPage() {
       </section>
 
       <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 16 }}>
+        <AdminCard eyebrow="Homepage" title="Curate landing media" copy="Choose the published projects and images used across the hero, services and cinematic parallax." href="/admin/landing" cta="Curate homepage →" />
         <AdminCard eyebrow="Portfolio CMS" title="Manage projects" copy="Create projects, upload galleries, choose covers and control what is published." href="/admin/projects" cta="Manage projects →" />
         <AdminCard eyebrow="Client pipeline" title="Manage bookings" copy="Review incoming briefs and move enquiries from new to confirmed or completed." href="/admin/bookings" cta="Open bookings →" />
         <AdminCard eyebrow="Social proof" title="Moderate reviews" copy="Approve client reviews for the public site, reject submissions or return them to pending." href="/admin/reviews" cta="Moderate reviews →" />

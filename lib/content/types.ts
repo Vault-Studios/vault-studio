@@ -1,7 +1,8 @@
 import type { Locale } from "../i18n";
 
-export type ProjectGalleryItem = { src: string; alt: string; caption: string };
+export type ProjectGalleryItem = { id?: string; projectId?: string; src: string; alt: string; caption: string };
 export type Project = {
+  id?: string;
   slug: string;
   locale: Locale;
   client: string;
