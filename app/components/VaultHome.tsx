@@ -6,6 +6,7 @@ import { getPublicLandingMediaSlots, resolveLandingImage, resolveLandingProject 
 import AvailabilityBand from "./AvailabilityBand";
 import CinematicParallax from "./CinematicParallax";
 import DepthHero from "./DepthHero";
+import EditorialScrollStory from "./EditorialScrollStory";
 import EximCaseStudy from "./EximCaseStudy";
 import ReviewStories from "./ReviewStories";
 
@@ -93,21 +94,25 @@ export default async function VaultHome({ locale }: { locale: Locale }) {
 
   return (
     <main className="editorialHome">
+      <EditorialScrollStory />
       <DepthHero
         locale={locale}
         image={heroImage.src}
         imageAlt={heroImage.alt}
       />
 
-      <section className="brandStatement shell" aria-labelledby="brand-statement-title">
-        <p className="editorialKicker">{sw ? "Tunachoamini" : "What we believe"}</p>
-        <h2 id="brand-statement-title">
-          {sw ? "Kamera huona tukio. Sisi tunatafuta kinacholifanya libaki." : "The camera sees the moment. We find what makes it stay."}
-        </h2>
-        <p>{sw ? "Vault ni studio ya picha na filamu ya Dar es Salaam, inayotengeneza hadithi za watu, chapa na taasisi kote Afrika." : "Vault is a Dar es Salaam photography and film studio creating human stories for brands, organisations and culture across Africa."}</p>
+      <section className="brandStatement shell storySequence" data-scroll-story aria-labelledby="brand-statement-title">
+        <div className="storyPin brandStatementPin">
+          <p className="editorialKicker">{sw ? "Tunachoamini" : "What we believe"}</p>
+          <h2 id="brand-statement-title">
+            {sw ? "Kamera huona tukio. Sisi tunatafuta kinacholifanya libaki." : "The camera sees the moment. We find what makes it stay."}
+          </h2>
+          <p>{sw ? "Vault ni studio ya picha na filamu ya Dar es Salaam, inayotengeneza hadithi za watu, chapa na taasisi kote Afrika." : "Vault is a Dar es Salaam photography and film studio creating human stories for brands, organisations and culture across Africa."}</p>
+          <span className="storyGhostWord" aria-hidden="true">{sw ? "HADITHI" : "STORIES"}</span>
+        </div>
       </section>
 
-      <section className="editorialWork" id="work" aria-labelledby="selected-work-title">
+      <section className="editorialWork" id="work" data-scroll-story aria-labelledby="selected-work-title">
         <div className="editorialSectionHead shell">
           <div>
             <p className="editorialKicker">{copy.selectedWork}</p>
@@ -125,7 +130,7 @@ export default async function VaultHome({ locale }: { locale: Locale }) {
         <p className="editorialArchiveNote shell">{copy.growing} — {copy.growingNote}</p>
       </section>
 
-      <section className="editorialServices shell" id="services" aria-labelledby="services-title">
+      <section className="editorialServices shell" id="services" data-scroll-story aria-labelledby="services-title">
         <div className="editorialSectionHead">
           <div>
             <p className="editorialKicker">{copy.servicesEyebrow}</p>
@@ -152,15 +157,17 @@ export default async function VaultHome({ locale }: { locale: Locale }) {
 
       <CinematicParallax projects={projects} locale={locale} curatedImages={parallaxImages} />
 
-      <section className="studioStory shell" id="studio" aria-labelledby="studio-story-title">
-        <div className="studioStoryMedia">
-          <img src={storyImage.src} alt={storyImage.alt} loading="lazy" />
-        </div>
-        <div className="studioStoryCopy">
-          <p className="editorialKicker">{sw ? "Studio" : "The studio"}</p>
-          <h2 id="studio-story-title">{sw ? "Uwepo kabla ya vifaa." : "Presence before equipment."}</h2>
-          <p>{sw ? "Tunafanya kazi kwa karibu, kwa utulivu na kwa umakini. Kila uzalishaji huanza kwa kusikiliza—kisha tunaunda mwanga, mwendo na mazingira bila kupoteza ukweli wa wakati huo." : "We work closely, quietly and with intent. Every production begins by listening—then we shape light, movement and atmosphere without losing the truth of the moment."}</p>
-          <Link href={localizedPath(locale, "/book")}>{sw ? "Ongea na studio" : "Talk to the studio"} <Arrow /></Link>
+      <section className="studioStory shell storySequence" id="studio" data-scroll-story aria-labelledby="studio-story-title">
+        <div className="storyPin studioStoryPin">
+          <div className="studioStoryMedia">
+            <img src={storyImage.src} alt={storyImage.alt} loading="lazy" />
+          </div>
+          <div className="studioStoryCopy">
+            <p className="editorialKicker">{sw ? "Studio" : "The studio"}</p>
+            <h2 id="studio-story-title">{sw ? "Uwepo kabla ya vifaa." : "Presence before equipment."}</h2>
+            <p>{sw ? "Tunafanya kazi kwa karibu, kwa utulivu na kwa umakini. Kila uzalishaji huanza kwa kusikiliza—kisha tunaunda mwanga, mwendo na mazingira bila kupoteza ukweli wa wakati huo." : "We work closely, quietly and with intent. Every production begins by listening—then we shape light, movement and atmosphere without losing the truth of the moment."}</p>
+            <Link href={localizedPath(locale, "/book")}>{sw ? "Ongea na studio" : "Talk to the studio"} <Arrow /></Link>
+          </div>
         </div>
       </section>
 

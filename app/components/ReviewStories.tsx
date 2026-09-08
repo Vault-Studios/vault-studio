@@ -91,6 +91,9 @@ export default function ReviewStories({ locale }: { locale: Locale }) {
 
   return (
     <section className="reviewStories" id="reviews">
+      <a className="reviewFloatingEntry" href="#leave-review">
+        {sw ? "Acha maoni" : "Leave a review"}
+      </a>
       <div className="reviewLayout shell">
         <div className="reviewLead">
           <p className="eyebrow">{sw ? "Ushahidi nyuma ya fremu" : "Proof between the frames"}</p>
@@ -98,47 +101,52 @@ export default function ReviewStories({ locale }: { locale: Locale }) {
           <p>
             {sw ? "Maneno haya yanatoka moja kwa moja kwa wateja. Kila maoni yanathibitishwa na kuchapishwa kwa sauti ya mteja." : "These words come directly from clients. Every review is verified and published in the client's own voice."}
           </p>
+          <a className="reviewEntry" href="#leave-review">
+            {sw ? "Acha maoni" : "Leave a review"} <span aria-hidden="true">↓</span>
+          </a>
         </div>
 
-        <div className="reviewStack" aria-live="polite">
-          {reviews.length ? (
-            reviews.map((item, index) => (
-              <article
-                className="reviewCard reviewCardText"
-                key={item.id}
-                style={{ top: `${80 + index * 18}px` }}
-              >
-                <div className="reviewGlow" />
-                <div className="reviewNumber">
-                  {String(index + 1).padStart(2, "0")}
-                </div>
-                <div
-                  className="reviewRating"
-                  aria-label={`${item.rating} out of 5 stars`}
+        <div className="reviewStack">
+          <div className="reviewCards" aria-live="polite">
+            {reviews.length ? (
+              reviews.map((item, index) => (
+                <article
+                  className="reviewCard reviewCardText"
+                  key={item.id}
+                  style={{ top: `${96 + index * 14}px` }}
                 >
-                  {"★".repeat(item.rating)}
-                </div>
-                <div className="reviewCopy">
-                  <blockquote>“{item.review}”</blockquote>
-                  <div>
-                    <strong>{item.name}</strong>
-                    <span>
-                      {[item.company, item.project].filter(Boolean).join(" · ")}
-                    </span>
+                  <div className="reviewGlow" />
+                  <div className="reviewNumber">
+                    {String(index + 1).padStart(2, "0")}
                   </div>
-                </div>
-              </article>
-            ))
-          ) : (
-            <div className="reviewEmpty">
-              <span>{sw ? "Maktaba ya wateja itafunguliwa hivi karibuni" : "Client archive opening soon"}</span>
-              <p>
-                {sw ? "Tunawaalika washirika wetu wa awali kutuma maoni ya kwanza yaliyothibitishwa." : "We are inviting past collaborators to leave the first verified reflections."}
-              </p>
-            </div>
-          )}
+                  <div
+                    className="reviewRating"
+                    aria-label={`${item.rating} out of 5 stars`}
+                  >
+                    {"★".repeat(item.rating)}
+                  </div>
+                  <div className="reviewCopy">
+                    <blockquote>“{item.review}”</blockquote>
+                    <div>
+                      <strong>{item.name}</strong>
+                      <span>
+                        {[item.company, item.project].filter(Boolean).join(" · ")}
+                      </span>
+                    </div>
+                  </div>
+                </article>
+              ))
+            ) : (
+              <div className="reviewEmpty">
+                <span>{sw ? "Maktaba ya wateja itafunguliwa hivi karibuni" : "Client archive opening soon"}</span>
+                <p>
+                  {sw ? "Tunawaalika washirika wetu wa awali kutuma maoni ya kwanza yaliyothibitishwa." : "We are inviting past collaborators to leave the first verified reflections."}
+                </p>
+              </div>
+            )}
+          </div>
 
-          <div className="reviewInvite">
+          <div className="reviewInvite" id="leave-review">
             <div>
               <p className="eyebrow">{sw ? "Umefanya kazi na Vault?" : "Worked with Vault?"}</p>
               <h3>{sw ? "Eleza hadithi kwa maneno yako." : "Leave the story in your own words."}</h3>

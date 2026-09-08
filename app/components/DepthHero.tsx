@@ -93,7 +93,10 @@ export default function DepthHero({ locale, image, imageAlt }: DepthHeroProps) {
 
       <div className="editorialHeroContent shell">
         <p className="editorialKicker">Vault</p>
-        <h1>{sw ? "Studio ya Picha na Filamu" : "Photography & Film Studio"}</h1>
+        <h1>
+          <span>{sw ? "Studio ya Picha" : "Photography"}</span>
+          <span>{sw ? "na Filamu" : "& Film Studio"}</span>
+        </h1>
         <div className="editorialHeroFoot">
           <p>Dar es Salaam<br />Tanzania</p>
           <Link href="#work">{sw ? "Tazama kazi teule" : "View selected work"} <span aria-hidden="true">↓</span></Link>
