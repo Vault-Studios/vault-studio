@@ -28,13 +28,15 @@ export default async function AdminDashboardPage() {
   const session = await getAdminSession();
   if (!session) redirect("/admin/login");
 
-  const [projects, images, openBookings, pendingReviews, drafts, published] = await Promise.all([
+  const [projects, images, openBookings, pendingReviews, drafts, published, totalGalleries, activeGalleries] = await Promise.all([
     getCount("projects", session.accessToken),
     getCount("project_images", session.accessToken),
     getCount("booking_submissions", session.accessToken, "status=in.(new,contacted)"),
     getCount("review_submissions", session.accessToken, "status=eq.pending"),
     getCount("projects", session.accessToken, "is_published=eq.false"),
     getCount("projects", session.accessToken, "is_published=eq.true"),
+    getCount("client_galleries", session.accessToken),
+    getCount("client_galleries", session.accessToken, "status=eq.active"),
   ]);
 
   const attention = openBookings + pendingReviews + drafts;
@@ -55,16 +57,19 @@ export default async function AdminDashboardPage() {
         <Stat label="Pending reviews" value={pendingReviews} href="/admin/reviews" emphasis={pendingReviews > 0} />
         <Stat label="Draft projects" value={drafts} href="/admin/projects" emphasis={drafts > 0} />
         <Stat label="Published" value={published} href="/admin/projects" />
+        <Stat label="Active galleries" value={activeGalleries} href="/admin/galleries" />
       </section>
 
       <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14, marginBottom: 36 }}>
         <MiniStat label="Total projects" value={projects} />
         <MiniStat label="Project images" value={images} />
+        <MiniStat label="Client galleries" value={totalGalleries} />
       </section>
 
       <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 16 }}>
         <AdminCard eyebrow="Homepage" title="Curate landing media" copy="Choose the published projects and images used across the hero, services and cinematic parallax." href="/admin/landing" cta="Curate homepage →" />
         <AdminCard eyebrow="Portfolio CMS" title="Manage projects" copy="Create projects, upload galleries, choose covers and control what is published." href="/admin/projects" cta="Manage projects →" />
+        <AdminCard eyebrow="Client delivery" title="Private client galleries" copy="Create secure proof galleries, upload private photographs, review client selections and manage delivery." href="/admin/galleries" cta="Manage galleries →" />
         <AdminCard eyebrow="Client pipeline" title="Manage bookings" copy="Review incoming briefs and move enquiries from new to confirmed or completed." href="/admin/bookings" cta="Open bookings →" />
         <AdminCard eyebrow="Social proof" title="Moderate reviews" copy="Approve client reviews for the public site, reject submissions or return them to pending." href="/admin/reviews" cta="Moderate reviews →" />
       </section>

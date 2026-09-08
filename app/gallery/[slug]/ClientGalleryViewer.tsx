@@ -34,15 +34,17 @@ export default function ClientGalleryViewer(props: Props) {
   );
 
   useEffect(() => {
-    if (activeIndex === null) return;
+    if (activeIndex === null && !reviewing) return;
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") setActiveIndex(null);
+      if (event.key === "Escape") setReviewing(false);
+      if (activeIndex === null) return;
       if (event.key === "ArrowRight") setActiveIndex((value) => value === null ? null : (value + 1) % props.images.length);
       if (event.key === "ArrowLeft") setActiveIndex((value) => value === null ? null : (value - 1 + props.images.length) % props.images.length);
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [activeIndex, props.images.length]);
+  }, [activeIndex, reviewing, props.images.length]);
 
   async function toggle(imageId: string) {
     if (submittedAt || pending) return;
@@ -93,10 +95,13 @@ export default function ClientGalleryViewer(props: Props) {
   const activeImage = activeIndex === null ? null : props.images[activeIndex];
 
   return (
-    <main className="clientGallery">
+    <main className={`clientGallery${submittedAt ? " isFinalized" : ""}`}>
       <header className="clientGalleryHeader">
         <img src="/vault-logo-light.png" alt="Vault" />
-        <span>{submittedAt ? "Selection submitted" : "Private gallery"}</span>
+        <div>
+          <span>{submittedAt ? "Selection submitted" : "Private gallery"}</span>
+          <form action={`/gallery/${encodeURIComponent(props.slug)}/logout`} method="post"><button type="submit">Close gallery</button></form>
+        </div>
       </header>
 
       <section className="clientGalleryIntro">
@@ -106,10 +111,12 @@ export default function ClientGalleryViewer(props: Props) {
           {props.description ? <p>{props.description}</p> : <p>Review the collection and mark your final photographs.</p>}
           <span>{props.eventDate ? new Date(`${props.eventDate}T00:00:00`).toLocaleDateString(undefined, { dateStyle: "long" }) : `${props.images.length} photographs`}</span>
         </div>
+        {submittedAt ? <p className="clientGalleryFinalizedNote">Final selection received. Your choices are safely locked for Vault Studio to review.</p> : null}
       </section>
 
       <aside className="clientGallerySelectionBar">
         <div><strong>{selected.size}{props.selectionLimit === null ? "" : ` / ${props.selectionLimit}`}</strong><span>selected</span></div>
+        {props.selectionLimit !== null ? <progress aria-label={`${selected.size} of ${props.selectionLimit} photographs selected`} max={props.selectionLimit} value={selected.size} /> : null}
         <p aria-live="polite">{message || (submittedAt ? "Your final choices are locked." : "Tap the heart on every photograph you want to keep.")}</p>
         <button disabled={Boolean(submittedAt) || selected.size === 0} onClick={() => setReviewing(true)}>
           {submittedAt ? "Submitted" : "Review selection"}
@@ -153,10 +160,10 @@ export default function ClientGalleryViewer(props: Props) {
 
       {reviewing ? (
         <div className="clientGalleryReviewBackdrop" role="presentation">
-          <section className="clientGalleryReview" role="dialog" aria-modal="true" aria-labelledby="selection-review-title">
+          <section className="clientGalleryReview" role="dialog" aria-modal="true" aria-labelledby="selection-review-title" aria-describedby="selection-review-description">
             <p className="eyebrow">Final review</p>
             <h2 id="selection-review-title">Submit {selected.size} photograph{selected.size === 1 ? "" : "s"}?</h2>
-            <p>After confirmation your choices are locked. Vault Studio can reopen them if a change is needed.</p>
+            <p id="selection-review-description">After confirmation your choices are locked. Vault Studio can reopen them if a change is needed.</p>
             <ol>{selectedImages.map((image) => <li key={image.id}>{image.filename}</li>)}</ol>
             <div><button onClick={() => setReviewing(false)}>Keep editing</button><button disabled={pending === "finalize"} onClick={() => void finalize()}>{pending === "finalize" ? "Submitting…" : "Confirm final selection"}</button></div>
           </section>
