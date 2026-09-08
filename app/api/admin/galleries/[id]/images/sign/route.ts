@@ -27,12 +27,35 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (!galleries[0]) return NextResponse.json({ error: "Gallery not found." }, { status: 404 });
 
   const objectPath = `${id}/${crypto.randomUUID()}-${filename}`;
-  const signResponse = await fetch(`${url}/storage/v1/object/upload/sign/client-galleries/${objectPath}`, {
+  const encodedPath = objectPath.split("/").map(encodeURIComponent).join("/");
+  const signResponse = await fetch(`${url}/storage/v1/object/upload/sign/client-galleries/${encodedPath}`, {
     method: "POST",
     headers: { apikey: key, Authorization: `Bearer ${session.accessToken}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ upsert: false }),
+    body: "{}",
+    cache: "no-store",
   });
-  if (!signResponse.ok) return NextResponse.json({ error: "Unable to authorize upload." }, { status: 502 });
-  const signed = await signResponse.json() as { url?: string; token?: string };
-  return NextResponse.json({ path: objectPath, filename, signedUrl: signed.url, token: signed.token });
+  const signed = await signResponse.json().catch(() => null) as { url?: string; message?: string } | null;
+  if (!signResponse.ok || !signed?.url) {
+    return NextResponse.json(
+      { error: `Unable to authorize private upload (Storage HTTP ${signResponse.status}).` },
+      { status: 502 }
+    );
+  }
+
+  const signedUrl = signed.url.startsWith("http")
+    ? signed.url
+    : `${url}/storage/v1${signed.url.startsWith("/") ? signed.url : `/${signed.url}`}`;
+  const target = new URL(signedUrl);
+  if (
+    target.protocol !== "https:" ||
+    target.hostname !== new URL(url).hostname ||
+    !target.pathname.startsWith("/storage/v1/object/upload/sign/client-galleries/")
+  ) {
+    return NextResponse.json({ error: "Storage returned an invalid upload destination." }, { status: 502 });
+  }
+
+  return NextResponse.json(
+    { path: objectPath, filename, signedUrl: target.toString() },
+    { headers: { "Cache-Control": "no-store" } }
+  );
 }

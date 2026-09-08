@@ -51,7 +51,12 @@ export default async function GalleryDetailPage({ params }: { params: Promise<{ 
       <section className="adminPanel">
         <div className="adminPanelHeader"><div><p className="eyebrow">Proofs</p><h2>{images.length} photo{images.length === 1 ? "" : "s"}</h2></div></div>
         <GalleryImageUploader galleryId={gallery.id} />
-        {images.length ? <div className="adminList">{images.map((image, index) => <div className="adminListItem" key={image.id}><div><strong>{String(index + 1).padStart(2, "0")} · {image.filename}</strong><span>{image.is_downloadable ? "Download approved" : "View only"} · Added {new Date(image.created_at).toLocaleDateString()}</span></div><span>Proof {String(index + 1).padStart(2, "0")}</span></div>)}</div> : <div className="adminEmptyState"><span>00</span><h3>No photos yet</h3><p>Upload the first proof above. Files remain in the private client-galleries bucket.</p></div>}
+        {images.length ? <div className="galleryProofGrid">{images.map((image, index) => <article className="galleryProofCard" key={image.id}>
+          {/* Authenticated thumbnail route returns a resized private image without exposing its path. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img loading="lazy" src={`/api/admin/galleries/${gallery.id}/images/${image.id}/thumbnail`} alt={image.alt_text || image.filename} />
+          <div><span>Proof {String(index + 1).padStart(2, "0")}</span><strong>{image.filename}</strong><small>{image.is_downloadable ? "Download approved" : "View only"} · Added {new Date(image.created_at).toLocaleDateString()}</small></div>
+        </article>)}</div> : <div className="adminEmptyState"><span>00</span><h3>No photos yet</h3><p>Upload the first proof above. Files remain in the private client-galleries bucket.</p></div>}
       </section>
     </main>
   );
