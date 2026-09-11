@@ -44,7 +44,7 @@ test("anonymous Supabase requests do not manufacture a user session", async () =
 
 test("responsive navigation has exclusive desktop and mobile modes", async () => {
   const [hero, css] = await Promise.all([
-    readFile(new URL("app/components/DepthHero.tsx", root), "utf8"),
+    readFile(new URL("app/components/EditorialNavigation.tsx", root), "utf8"),
     readFile(new URL("app/globals.css", root), "utf8"),
   ]);
 

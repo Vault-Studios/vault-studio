@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import type { Locale } from "../../lib/i18n";
-import { dictionaries, localizedPath } from "../../lib/i18n";
+import { localizedPath } from "../../lib/i18n";
 
 type DepthHeroProps = {
   locale: Locale;
@@ -12,10 +12,7 @@ type DepthHeroProps = {
 };
 
 export default function DepthHero({ locale, image, imageAlt }: DepthHeroProps) {
-  const dictionary = dictionaries[locale];
-  const { nav } = dictionary;
   const heroRef = useRef<HTMLElement>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
   const sw = locale === "sw";
 
   useEffect(() => {
@@ -47,49 +44,6 @@ export default function DepthHero({ locale, image, imageAlt }: DepthHeroProps) {
     <section className="editorialHero" id="top" ref={heroRef}>
       <img className="editorialHeroMedia" src={image} alt={imageAlt} fetchPriority="high" />
       <div className="editorialHeroVeil" aria-hidden="true" />
-
-      <header className="editorialNav shell">
-        <Link className="brand" href={localizedPath(locale, "/")} aria-label="Vault home">
-          <img className="brandLogo" src="/vault-logo-light.png" alt="Vault" />
-        </Link>
-        <nav className="desktopNav" aria-label="Main navigation">
-          <Link href="#work">{nav.work}</Link>
-          <Link href="#services">{nav.services}</Link>
-          <Link href="#studio">{nav.studio}</Link>
-          <Link href="#reviews">{nav.reviews}</Link>
-        </nav>
-        <Link className="languageSwitch" href={dictionary.alternateHref} hrefLang={locale === "en" ? "sw" : "en"}>
-          {dictionary.alternateLanguage}
-        </Link>
-        <Link className="editorialBookLink" href={localizedPath(locale, "/book")}>
-          {nav.book}
-        </Link>
-        <button
-          className="menuToggle"
-          type="button"
-          aria-expanded={menuOpen}
-          aria-controls="editorial-mobile-menu"
-          onClick={() => setMenuOpen((open) => !open)}
-        >
-          <span />
-          <span />
-          <span className="srOnly">Toggle navigation</span>
-        </button>
-        <nav
-          className={`mobileMenu editorialMobileMenu${menuOpen ? " isOpen" : ""}`}
-          id="editorial-mobile-menu"
-          aria-label="Mobile navigation"
-        >
-          <Link href="#work" onClick={() => setMenuOpen(false)}>{nav.work}</Link>
-          <Link href="#services" onClick={() => setMenuOpen(false)}>{nav.services}</Link>
-          <Link href="#studio" onClick={() => setMenuOpen(false)}>{nav.studio}</Link>
-          <Link href="#reviews" onClick={() => setMenuOpen(false)}>{nav.reviews}</Link>
-          <Link href={localizedPath(locale, "/book")} onClick={() => setMenuOpen(false)}>{nav.book}</Link>
-          <Link href={dictionary.alternateHref} hrefLang={locale === "en" ? "sw" : "en"} onClick={() => setMenuOpen(false)}>
-            {dictionary.alternateLanguage} · {dictionary.languageName}
-          </Link>
-        </nav>
-      </header>
 
       <div className="editorialHeroContent shell">
         <p className="editorialKicker">Vault</p>

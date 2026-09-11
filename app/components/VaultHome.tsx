@@ -1,3 +1,4 @@
+import EditorialNavigation from "./EditorialNavigation";
 import Link from "next/link";
 import { getProjects } from "../../lib/content";
 import type { Locale } from "../../lib/i18n";
@@ -93,6 +94,8 @@ export default async function VaultHome({ locale }: { locale: Locale }) {
   );
 
   return (
+    <>
+      <EditorialNavigation locale={locale} />
     <main className="editorialHome">
       <EditorialScrollStory />
       <DepthHero
@@ -202,5 +205,6 @@ export default async function VaultHome({ locale }: { locale: Locale }) {
         <p>© 2026 Vault Studio</p>
       </footer>
     </main>
+    </>
   );
 }
