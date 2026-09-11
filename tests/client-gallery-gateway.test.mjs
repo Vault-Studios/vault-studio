@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
@@ -15,6 +16,15 @@ import {
 const testDirectory = path.dirname(fileURLToPath(import.meta.url));
 const rootDirectory = path.resolve(testDirectory, "..");
 const read = (relativePath) => fs.readFileSync(path.join(rootDirectory, relativePath), "utf8");
+// Git includes tracked env/config files even if an ignore rule also matches them.
+// Untracked local secrets are not project source and must not be read by this scan.
+const trackedFiles = execFileSync("git", ["ls-files", "-z"], {
+  cwd: rootDirectory,
+  encoding: "utf8",
+}).split("\0").filter(Boolean);
+const buildFiles = (directory) => fs.readdirSync(path.join(rootDirectory, directory), { recursive: true })
+  .map((file) => path.join(directory, file))
+  .filter((file) => fs.statSync(path.join(rootDirectory, file)).isFile());
 
 const serverSource = read("lib/gallery-server.ts");
 const sessionSource = read("lib/gallery-session.ts");
@@ -143,27 +153,13 @@ test("the privileged key is isolated from client, admin, and shared runtime modu
     "worker/index.ts",
     "tests/client-gallery-gateway.test.mjs",
   ]);
-  const ignoredDirectories = new Set([".git", ".next", ".vinext", "dist", "node_modules"]);
   const unexpectedReferences = [];
-
-  const visit = (directory) => {
-    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-      if (entry.isDirectory() && ignoredDirectories.has(entry.name)) continue;
-      const absolutePath = path.join(directory, entry.name);
-      if (entry.isDirectory()) {
-        visit(absolutePath);
-        continue;
-      }
-      const relativePath = path.relative(rootDirectory, absolutePath).replaceAll("\\", "/");
-      if (allowedReferences.has(relativePath)) continue;
-      const source = fs.readFileSync(absolutePath, "utf8");
-      if (/SUPABASE_SERVER_KEY|NEXT_PUBLIC_SUPABASE_SERVER_KEY|VITE_SUPABASE_SERVER_KEY/.test(source)) {
-        unexpectedReferences.push(relativePath);
-      }
+  for (const relativePath of [...trackedFiles, ...buildFiles("dist/client")]) {
+    if (allowedReferences.has(relativePath)) continue;
+    if (/SUPABASE_SERVER_KEY|NEXT_PUBLIC_SUPABASE_SERVER_KEY|VITE_SUPABASE_SERVER_KEY/.test(read(relativePath))) {
+      unexpectedReferences.push(relativePath);
     }
-  };
-
-  visit(rootDirectory);
+  }
   assert.deepEqual(unexpectedReferences, []);
   assert.match(serverSource, /import "server-only"/);
   assert.match(serverSource, /headers\.set\("apikey", key\)/);
@@ -175,17 +171,24 @@ test("the privileged key is isolated from client, admin, and shared runtime modu
 });
 
 test("source does not contain a committed Supabase secret credential", () => {
-  const files = [
-    serverSource,
-    sessionSource,
-    unlockSource,
-    imageSource,
-    selectionSource,
-    submitSource,
-    migrationSource,
-  ];
-  for (const source of files) {
-    assert.doesNotMatch(source, /sb_secret_[A-Za-z0-9_-]{20,}/);
-    assert.doesNotMatch(source, /service_role\.[A-Za-z0-9_-]{20,}/);
+  const exposedCredentials = [];
+  for (const relativePath of [...trackedFiles, ...buildFiles("dist")]) {
+    // Vinext copies local secrets here for the local server; never exempt client output
+    // or a force-tracked copy of this file from credential checks.
+    if (relativePath.replaceAll("\\", "/") === "dist/server/.dev.vars" &&
+        !trackedFiles.includes("dist/server/.dev.vars")) continue;
+    const source = read(relativePath);
+    const hasSecretKey = /sb_secret_[A-Za-z0-9_-]{20,}|service_role\.[A-Za-z0-9_-]{20,}/.test(source);
+    const hasServiceRoleJwt = [...source.matchAll(/eyJ[A-Za-z0-9_-]+\.([A-Za-z0-9_-]+)\.[A-Za-z0-9_-]+/g)]
+      .some((match) => {
+        try {
+          return JSON.parse(Buffer.from(match[1], "base64url").toString("utf8")).role === "service_role";
+        } catch {
+          return false;
+        }
+      });
+    if (hasSecretKey || hasServiceRoleJwt) exposedCredentials.push(relativePath);
   }
+  // Report paths only: assertion output must never include credential values.
+  assert.deepEqual(exposedCredentials, []);
 });
