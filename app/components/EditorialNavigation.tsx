@@ -32,7 +32,7 @@ export default function EditorialNavigation({ locale }: { locale: Locale }) {
   }, [menuOpen]);
 
   return (
-    <header className="editorialNav shell">
+    <header className="editorialNav">
       <Link className="brand" href={localizedPath(locale, "/")} aria-label="Vault home">
         <img className="brandLogo" src="/vault-logo-light.png" alt="Vault" />
       </Link>

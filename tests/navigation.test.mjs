@@ -54,11 +54,25 @@ test("mobile selected work uses one shrinkable track without desktop gutters or 
   assert.match(css, /\.editorialProjectItem \.projectCardMeta strong \{\s*overflow-wrap: anywhere;/);
   assert.match(css, /\.editorialSectionHead > \* \{\s*min-width: 0;/);
   assert.match(css, /\.editorialSectionHead h2 \{\s*overflow-wrap: anywhere;/);
-  assert.match(mobile, /\.editorialNav \{[^}]*width: calc\(100% - 24px\)/);
+  assert.match(mobile, /\.editorialNav \{[^}]*--nav-edge: clamp\(16px, 4vw, 20px\)/);
 });
 
 test("moving decorative story text is clipped independently of essential content", () => {
   assert.match(home, /<span className="storyGhostLayer" aria-hidden="true">\s*<span className="storyGhostWord">/);
   assert.match(css, /\.storyGhostLayer \{[^}]*inset: 0;[^}]*overflow: clip;[^}]*pointer-events: none;/);
   assert.doesNotMatch(css.match(/\.editorialHome \{([^}]+)\}/)[1], /overflow(?:-x)?:/);
+});
+
+test("navigation spans the viewport independently of capped content shells", () => {
+  assert.match(navigation, /<header className="editorialNav">/);
+  assert.match(navRule, /width: 100%;/);
+  assert.match(navRule, /padding-inline: var\(--nav-edge\)/);
+  assert.match(navRule, /--nav-edge: clamp\(20px, 2.5vw, 48px\)/);
+  assert.match(navRule, /grid-template-columns: auto minmax\(0, 1fr\) auto auto/);
+  assert.doesNotMatch(navRule, /max-width:/);
+  assert.match(css, /\.editorialNav \.desktopNav \{[^}]*justify-content: center/);
+});
+
+test("animated section headings stay within their viewport gutters", () => {
+  assert.ok(css.includes("translate3d(clamp(calc((100% - 100vw) / 2), var(--story-shift), calc((100vw - 100%) / 2)), 0, 0)"));
 });
