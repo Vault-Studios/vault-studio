@@ -43,3 +43,22 @@ test("mobile navigation opens only below desktop breakpoint and fits short viewp
   assert.match(navigation, /if \(desktop.matches\) setMenuOpen\(false\)/);
   assert.doesNotMatch(mobile, /\.editorialBookLink \{\s*display: none/);
 });
+
+test("mobile selected work uses one shrinkable track without desktop gutters or implicit columns", () => {
+  const mobile = css.slice(css.indexOf("@media (max-width: 640px) {", css.indexOf(".editorialNav {")));
+  const grid = mobile.match(/\.editorialProjectList \{([^}]+)\}/)[1];
+  assert.match(grid, /grid-template-columns: minmax\(0, 1fr\)/);
+  assert.match(grid, /gap: 70px 0;/);
+  assert.match(mobile, /\.editorialProjectItem,\s*\.editorialProjectItem.item-2,\s*\.editorialProjectItem.item-3 \{\s*grid-column: 1 \/ -1;/);
+  assert.match(css, /\.editorialProjectItem \{\s*min-width: 0;/);
+  assert.match(css, /\.editorialProjectItem \.projectCardMeta strong \{\s*overflow-wrap: anywhere;/);
+  assert.match(css, /\.editorialSectionHead > \* \{\s*min-width: 0;/);
+  assert.match(css, /\.editorialSectionHead h2 \{\s*overflow-wrap: anywhere;/);
+  assert.match(mobile, /\.editorialNav \{[^}]*width: calc\(100% - 24px\)/);
+});
+
+test("moving decorative story text is clipped independently of essential content", () => {
+  assert.match(home, /<span className="storyGhostLayer" aria-hidden="true">\s*<span className="storyGhostWord">/);
+  assert.match(css, /\.storyGhostLayer \{[^}]*inset: 0;[^}]*overflow: clip;[^}]*pointer-events: none;/);
+  assert.doesNotMatch(css.match(/\.editorialHome \{([^}]+)\}/)[1], /overflow(?:-x)?:/);
+});

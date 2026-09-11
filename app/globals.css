@@ -2570,7 +2570,12 @@ textarea {
   margin-bottom: clamp(60px, 9vw, 120px);
 }
 
+.editorialSectionHead > * {
+  min-width: 0;
+}
+
 .editorialSectionHead h2 {
+  overflow-wrap: anywhere;
   margin: 14px 0 0;
   font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(3.5rem, 7.2vw, 8.5rem);
@@ -2596,6 +2601,7 @@ textarea {
 }
 
 .editorialProjectItem {
+  min-width: 0;
   grid-column: 1 / 11;
 }
 
@@ -2627,6 +2633,7 @@ textarea {
 }
 
 .editorialProjectItem .projectCardMeta strong {
+  overflow-wrap: anywhere;
   max-width: 850px;
   margin: 13px 0 24px;
   font-family: Georgia, "Times New Roman", serif;
@@ -3190,7 +3197,15 @@ textarea {
   }
 
   .editorialProjectList {
-    gap: 70px;
+    /* A single mobile track avoids eleven desktop gutters consuming 770px. */
+    grid-template-columns: minmax(0, 1fr);
+    gap: 70px 0;
+  }
+
+  .editorialProjectItem,
+  .editorialProjectItem.item-2,
+  .editorialProjectItem.item-3 {
+    grid-column: 1 / -1;
   }
 
   .editorialProjectItem .projectCard,
@@ -5212,6 +5227,14 @@ textarea {
   line-height: 1.65;
   opacity: var(--story-enter);
   transform: translate3d(calc(var(--story-shift) * -.18), 0, 0);
+}
+
+.storyGhostLayer {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: clip;
+  pointer-events: none;
 }
 
 .storyGhostWord {

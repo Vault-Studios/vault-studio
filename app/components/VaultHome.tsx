@@ -111,7 +111,9 @@ export default async function VaultHome({ locale }: { locale: Locale }) {
             {sw ? "Kamera huona tukio. Sisi tunatafuta kinacholifanya libaki." : "The camera sees the moment. We find what makes it stay."}
           </h2>
           <p>{sw ? "Vault ni studio ya picha na filamu ya Dar es Salaam, inayotengeneza hadithi za watu, chapa na taasisi kote Afrika." : "Vault is a Dar es Salaam photography and film studio creating human stories for brands, organisations and culture across Africa."}</p>
-          <span className="storyGhostWord" aria-hidden="true">{sw ? "HADITHI" : "STORIES"}</span>
+          <span className="storyGhostLayer" aria-hidden="true">
+            <span className="storyGhostWord">{sw ? "HADITHI" : "STORIES"}</span>
+          </span>
         </div>
       </section>
 
